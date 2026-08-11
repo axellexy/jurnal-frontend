@@ -124,7 +124,7 @@
             border: 1px solid #e2e8f0;
             border-radius: 6px;
         }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 0.9rem; }
         th { background: #2563eb; color: white; white-space: nowrap; }
 
@@ -150,7 +150,6 @@
 <body>
 
 <div class="container">
-    <!-- OVERLAY UNTUK MENUTUP SIDEBAR DI HP -->
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
@@ -160,9 +159,7 @@
 
         <small style="color:#94a3b8; margin-bottom: 8px; display:block;">Daftar Anggota PKL:</small>
         
-        <div id="sidebar-list" class="sidebar-list">
-            <!-- List Anggota Muncul Otomatis -->
-        </div>
+        <div id="sidebar-list" class="sidebar-list"></div>
 
         <button onclick="logout()" class="btn-logout">Logout</button>
     </aside>
@@ -181,7 +178,8 @@
         <!-- AREA FORM INPUT -->
         <div id="area-form">
             <form id="form-jurnal" class="form">
-                <input type="date" id="tanggal" required>
+                <!-- MENGGUNAKAN TYPE DATETIME-LOCAL -->
+                <input type="datetime-local" id="tanggal" required>
                 <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
                 <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
                 <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
@@ -195,7 +193,7 @@
                 <thead>
                     <tr>
                         <th style="width: 40px;">No</th>
-                        <th style="width: 110px;">Tanggal</th>
+                        <th style="width: 160px;">Tanggal & Waktu</th>
                         <th style="width: 150px;">Judul</th>
                         <th>Kegiatan</th>
                         <th>Keterangan</th>
@@ -210,7 +208,6 @@
 </div>
 
 <script>
-    // 1. Cek Login
     const userEmail = localStorage.getItem('user_email');
     const userNama = localStorage.getItem('user_nama') || userEmail;
 
@@ -220,11 +217,8 @@
     document.getElementById('user-display').innerText = `${userNama} (${userEmail})`;
 
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
-    
-    // Default: Nama anggota yang sedang dilihat
     let namaAnggotaDilihat = userNama;
 
-    // Daftar Default 5 Anggota Utama
     const daftarAnggotaBawaan = [
         "Achmad Darell Yusuf",
         "Ardan Fahriza",
@@ -233,12 +227,9 @@
         "Revan Aufa Hilal Kamil"
     ];
 
-    // Fungsi Toggle Sidebar Hamburger (HP)
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('sidebar-overlay').classList.toggle('active');
     }
 
     function logout() {
@@ -247,7 +238,6 @@
         window.location.href = "login.html";
     }
 
-    // Render Tombol Sidebar
     function renderSidebar() {
         const sidebarContainer = document.getElementById('sidebar-list');
         sidebarContainer.innerHTML = '';
@@ -263,30 +253,22 @@
             if (nama === namaAnggotaDilihat) btn.classList.add('active');
             btn.onclick = () => {
                 pilihAnggota(nama);
-                // Tutup sidebar otomatis di HP setelah diklik
-                if (window.innerWidth <= 768) {
-                    toggleSidebar();
-                }
+                if (window.innerWidth <= 768) toggleSidebar();
             };
             sidebarContainer.appendChild(btn);
         });
     }
 
-    // Fungsi ganti tampilan anggota saat sidebar diklik
     function pilihAnggota(nama) {
         namaAnggotaDilihat = nama;
-
         document.getElementById('judul-anggota').innerText = "Kegiatan : " + nama;
-
-        // Update tombol aktif
         renderSidebar();
 
-        // Atur Form: Jika sedang membuka tab sendiri, tampilkan form
         const areaForm = document.getElementById('area-form');
         if (namaAnggotaDilihat === userNama) {
             areaForm.innerHTML = `
                 <form id="form-jurnal" class="form">
-                    <input type="date" id="tanggal" required>
+                    <input type="datetime-local" id="tanggal" required>
                     <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
                     <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
                     <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
@@ -305,7 +287,13 @@
         muatDataJurnal();
     }
 
-    // Fetch Data
+    // Format tampilan tanggal & jam agar rapi di tabel
+    function formatTanggalWaktu(rawDate) {
+        if (!rawDate) return '-';
+        // Mengubah format "YYYY-MM-THH:mm" menjadi "YYYY-MM-DD HH:mm"
+        return rawDate.replace('T', ' ');
+    }
+
     async function muatDataJurnal() {
         const tbody = document.getElementById('tabel-body');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
@@ -325,7 +313,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${row.tanggal}</td>
+                    <td><b>${formatTanggalWaktu(row.tanggal)}</b></td>
                     <td>${row.judul || '-'}</td>
                     <td>${row.kegiatan}</td>
                     <td>${row.keterangan || '-'}</td>
@@ -338,7 +326,6 @@
         }
     }
 
-    // Submit Jurnal
     function pasangListenerForm() {
         const form = document.getElementById('form-jurnal');
         if (!form) return;
@@ -385,7 +372,6 @@
         });
     }
 
-    // Jalankan Awal
     renderSidebar();
     pilihAnggota(userNama);
 </script>
