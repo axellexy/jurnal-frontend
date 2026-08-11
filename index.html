@@ -97,7 +97,7 @@
         .btn-absen-act.keluar { background: var(--accent-gradient); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2); }
         .btn-absen-act:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; background: #cbd5e1; color: #64748b; }
 
-        /* NAVIGATION TABS (JURNAL / REKAP ABSEN) */
+        /* NAVIGATION TABS */
         .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
         .tab-btn {
             background: none; border: none; font-size: 0.9rem; font-weight: 800; color: var(--text-muted);
@@ -116,7 +116,7 @@
         .custom-table tr:last-child td { border-bottom: none; }
         .custom-table tr:nth-child(even) { background: #f8fafc; }
         
-        /* BADGE STATUS */
+        /* BADGE STATUS REKAP ABSENSI */
         .badge-status { padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; display: inline-block; }
         .badge-status.Hadir { background: #dcfce7; color: #15803d; }
         .badge-status.Sakit { background: #fef3c7; color: #b45309; }
@@ -368,7 +368,7 @@
                 </div>
                 <div class="field">
                     <label>Alasan / Keterangan</label>
-                    <textarea id="izin-alasan" rows="3" placeholder="Contoh: Demam & flu / Acara keluarga..." required></textarea>
+                    <textarea id="izin-alasan" rows="3" placeholder="Contoh: Demam tinggi & butuh istirahat..." required></textarea>
                 </div>
                 <button type="submit" class="btn-submit" id="btn-simpan-izin">Simpan Ke Rekap Absen</button>
             </form>
@@ -552,6 +552,7 @@
         });
     }
 
+    // TERAMBIL & DISUSUN SECARA DETAIL DI REKAP ABSENSI (SAKIT/IZIN/ALPHA)
     function renderTabelAbsensi(dataAbsen) {
         const tbody = document.getElementById('table-absen-body');
         tbody.innerHTML = '';
@@ -561,20 +562,28 @@
             return;
         }
 
-        // KELOMPOKKAN ABSEN BERDASARKAN TANGGAL
         const grouped = {};
         dataAbsen.forEach(item => {
             const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
-            if (!grouped[tglKey]) grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal };
+            if (!grouped[tglKey]) {
+                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal };
+            }
 
             const timeStr = new Date(item.tanggal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
             
-            if (item.judul.includes("MASUK")) grouped[tglKey].masuk = timeStr + ' WIB';
-            else if (item.judul.includes("KELUAR")) grouped[tglKey].keluar = timeStr + ' WIB';
-            else if (item.judul.includes("IZIN:") || item.judul.includes("SAKIT:") || item.judul.includes("ALPHA:")) {
-                const st = item.judul.split(":")[1].trim();
+            if (item.judul.includes("MASUK")) {
+                grouped[tglKey].masuk = timeStr + ' WIB';
+            } else if (item.judul.includes("KELUAR")) {
+                grouped[tglKey].keluar = timeStr + ' WIB';
+            } else if (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA")) {
+                // Ekstrak status (Sakit / Izin / Alpha)
+                const parts = item.judul.split(":");
+                const st = parts[1] ? parts[1].trim() : "Sakit";
+                
                 grouped[tglKey].status = st.charAt(0).toUpperCase() + st.slice(1).toLowerCase();
-                grouped[tglKey].keterangan = item.keterangan || '-';
+                grouped[tglKey].masuk = '-';
+                grouped[tglKey].keluar = '-';
+                grouped[tglKey].keterangan = item.keterangan || 'Tidak ada keterangan';
             }
         });
 
@@ -745,7 +754,7 @@
         }
     });
 
-    // SUBMIT FORM SAKIT / IZIN / ALPHA
+    // SUBMIT FORM SAKIT / IZIN / ALPHA -> LANGSUNG MASUK REKAP ABSENSI
     document.getElementById('form-izin').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('btn-simpan-izin');
@@ -772,7 +781,7 @@
             });
 
             if (response.ok) {
-                alert(`Pengajuan ${status} berhasil disimpan!`);
+                alert(`Pengajuan ${status} berhasil dikirim dan dicatat di Rekap Absensi!`);
                 document.getElementById('izin-alasan').value = '';
                 toggleIzinModal(false);
                 muatDataJurnal();
