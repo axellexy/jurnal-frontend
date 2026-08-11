@@ -3,231 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Jurnal PKL</title>
+    <title>Jurnal & Absensi PKL - Enterprise Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { margin: 0; background: #f1f5f9; min-height: 100vh; }
-        .container { display: flex; min-height: 100vh; position: relative; }
-
-        /* OVERLAY UNTUK HP */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-        }
-        .sidebar-overlay.active { display: block; }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: #0f172a;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            transition: transform 0.3s ease;
-        }
-        .sidebar h2 { margin-bottom: 5px; font-size: 1.2rem; }
-        .sidebar .user-info { font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; word-break: break-all; }
-        .sidebar-list button {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: 0.2s;
-        }
-        .sidebar-list button.active,
-        .sidebar-list button:hover { background: #2563eb; }
-        .btn-logout {
-            background: #dc2626 !important;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: auto;
-            text-align: center !important;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-        .btn-logout:hover { background: #b91c1c !important; }
-
-        /* CONTENT */
-        .content { flex: 1; padding: 20px; background: white; width: 100%; min-width: 0; }
-        .header {
-            background: #2563eb;
-            padding: 15px 20px;
-            margin: -20px -20px 20px -20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .header-title { display: flex; align-items: center; gap: 15px; }
-        .header h2 { margin: 0; color: white; letter-spacing: 1px; font-size: 1.2rem; }
-
-        /* HAMBURGER BUTTON */
-        .hamburger-btn {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
+        :root {
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            --success-gradient: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            --bg-body: #f1f5f9;
+            --surface: #ffffff;
+            --surface-glass: rgba(255, 255, 255, 0.85);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+            --shadow-lg: 0 20px 30px -10px rgba(99, 102, 241, 0.15);
         }
 
-        /* FORM */
-        .form { max-width: 600px; margin-bottom: 25px; }
-        .form input, .form textarea, .form button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 0.95rem;
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg-body); color: var(--text-main); padding-bottom: 110px; min-height: 100vh; }
+
+        /* NAVBAR TOP */
+        .navbar {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--surface-glass); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border); padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .form button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon {
+            width: 42px; height: 42px; background: var(--primary-gradient);
+            color: white; border-radius: 14px; display: grid; place-items: center;
+            font-weight: 800; font-size: 1.2rem; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
         }
-        .form button:hover { background: #1d4ed8; }
+        .brand-info h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+        .brand-info span { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-        .notice-box {
-            background: #e0f2fe;
-            color: #0369a1;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            max-width: 600px;
+        .profile-chip {
+            background: #ffffff; border: 1px solid var(--border); padding: 6px 14px 6px 6px;
+            border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm);
+        }
+        .profile-avatar { width: 32px; height: 32px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; }
+        .profile-name { font-size: 0.8rem; font-weight: 700; }
+        .btn-logout-icon { border: none; background: #fee2e2; color: #ef4444; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 0.75rem; font-weight: 700; }
+
+        /* MAIN CONTAINER */
+        .app-container { max-width: 760px; margin: 0 auto; padding: 24px 20px; }
+
+        /* HERO STATS CARD */
+        .hero-banner {
+            background: var(--primary-gradient); color: white; border-radius: var(--radius-xl);
+            padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+        }
+        .hero-banner::after {
+            content: ''; position: absolute; right: -20px; bottom: -20px; width: 140px; height: 140px;
+            background: rgba(255,255,255,0.1); border-radius: 50%; pointer-events: none;
+        }
+        .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .hero-title span { font-size: 0.8rem; opacity: 0.85; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .hero-title h2 { font-size: 1.3rem; font-weight: 800; margin-top: 2px; }
+        .badge-role { background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); padding: 14px; border-radius: var(--radius-lg); }
+        .stat-item .num { font-size: 1.25rem; font-weight: 800; }
+        .stat-item .lbl { font-size: 0.7rem; opacity: 0.8; font-weight: 600; text-transform: uppercase; }
+
+        /* CARD ABSENSI QUICK ACTION */
+        .absensi-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
+            padding: 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm); display: flex;
+            align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .absensi-info h3 { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+        .absensi-info p { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        .absensi-actions { display: flex; gap: 10px; }
+        .btn-absen {
+            border: none; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.85rem;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; color: white;
+        }
+        .btn-absen-masuk { background: var(--success-gradient); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25); }
+        .btn-absen-pulang { background: var(--accent-gradient); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+        .btn-absen:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+        /* SECTION HEADER */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* TEAM CAROUSEL */
+        .team-carousel { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 24px; scrollbar-width: none; }
+        .team-carousel::-webkit-scrollbar { display: none; }
+        .team-card {
+            flex: 0 0 auto; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-sm);
+        }
+        .team-card.active { background: var(--text-main); border-color: var(--text-main); color: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2); }
+        .team-avatar { width: 34px; height: 34px; border-radius: 10px; background: #e0e7ff; color: #4338ca; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
+        .team-card.active .team-avatar { background: rgba(255,255,255,0.2); color: white; }
+        .team-meta .name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+
+        /* CONTROLS (SEARCH & CHIPS) */
+        .controls-wrapper { margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .search-field {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 0 16px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm);
+        }
+        .search-field input { width: 100%; border: none; padding: 14px 0; font-size: 0.9rem; outline: none; background: transparent; }
+
+        /* TIMELINE FEED */
+        .feed-list { position: relative; padding-left: 24px; border-left: 2px dashed #cbd5e1; margin-left: 12px; }
+        .feed-card {
+            position: relative; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 20px; margin-bottom: 20px;
+            box-shadow: var(--shadow-sm); transition: all 0.25s ease;
+        }
+        .feed-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
+        .feed-dot {
+            position: absolute; left: -33px; top: 24px; width: 14px; height: 14px;
+            border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-body);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        /* DESKTOP TABLE STYLE */
-        .table-responsive { width: 100%; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 0.9rem; }
-        th { background: #2563eb; color: white; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .card-date { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .cat-pill { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; background: #e0e7ff; color: #4338ca; }
 
-        /* RESPONSIVE DESIGN (TAMPILAN KHUSUS HP) */
-        @media (max-width: 768px) {
-            .hamburger-btn { display: block; }
-            .sidebar {
-                position: fixed;
-                top: 0; left: 0; bottom: 0;
-                transform: translateX(-100%);
-                box-shadow: 4px 0 15px rgba(0,0,0,0.2);
-            }
-            .sidebar.active { transform: translateX(0); }
-            .content { padding: 15px; }
-            .header { margin: -15px -15px 15px -15px; padding: 15px; }
-            .header h2 { font-size: 1rem; }
-            #judul-anggota { font-size: 1.2rem; }
+        .feed-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+        .feed-sub { font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 12px; }
+        .feed-body { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; background: #f8fafc; padding: 14px; border-radius: var(--radius-lg); border: 1px solid #f1f5f9; }
 
-            /* UBAH TABEL MENJADI CARD DI HP */
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; }
-            
-            tr {
-                background: #f8fafc;
-                border: 1px solid #cbd5e1;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                padding: 12px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            }
+        /* FLOATING ACTION BUTTON (FAB) */
+        .fab-trigger {
+            position: fixed; bottom: 28px; right: 28px; z-index: 120;
+            background: var(--primary-gradient); color: white; border: none;
+            padding: 16px 26px; border-radius: 40px; font-weight: 800; font-size: 0.95rem;
+            cursor: pointer; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .fab-trigger:hover { transform: scale(1.06) translateY(-2px); }
 
-            td {
-                border: none;
-                padding: 6px 0;
-                display: flex;
-                flex-direction: column;
-                font-size: 0.9rem;
-            }
+        /* MODAL FORM SHEET */
+        .sheet-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
+            z-index: 200; display: none; place-items: center; padding: 20px;
+        }
+        .sheet-overlay.active { display: grid; }
+        .sheet-content {
+            background: var(--surface); width: 100%; max-width: 520px; border-radius: var(--radius-xl);
+            padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: sheetIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes sheetIn { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-            td::before {
-                font-weight: bold;
-                color: #2563eb;
-                font-size: 0.8rem;
-                text-transform: uppercase;
-                margin-bottom: 2px;
-            }
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sheet-header h2 { font-size: 1.2rem; font-weight: 800; }
+        .btn-close { background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800; color: var(--text-muted); }
 
-            td:nth-of-type(1)::before { content: "Tanggal & Waktu"; }
-            td:nth-of-type(2)::before { content: "Judul Kegiatan"; }
-            td:nth-of-type(3)::before { content: "Nama Kegiatan"; }
-            td:nth-of-type(4)::before { content: "Rincian Keterangan"; }
-            
-            td:nth-of-type(1) {
-                border-bottom: 1px solid #e2e8f0;
-                padding-bottom: 6px;
-                margin-bottom: 6px;
-            }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .field input, .field textarea {
+            width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);
+            font-size: 0.9rem; outline: none; background: #f8fafc; transition: 0.2s; font-weight: 500;
+        }
+        .field input:focus, .field textarea:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12); }
+
+        .btn-submit {
+            width: 100%; background: var(--primary-gradient); color: white; border: none; padding: 16px;
+            border-radius: var(--radius-lg); font-weight: 800; font-size: 0.95rem; cursor: pointer;
+            margin-top: 10px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); transition: 0.2s;
+        }
+
+        .notice-box { background: #fef3c7; color: #92400e; padding: 12px 16px; border-radius: var(--radius-lg); font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
+
+        @media (max-width: 640px) {
+            .absensi-card { flex-direction: column; align-items: flex-start; }
+            .absensi-actions { width: 100%; }
+            .btn-absen { flex: 1; justify-content: center; }
+            .hero-banner { padding: 20px; }
+            .stats-row { padding: 10px; }
+            .fab-trigger { bottom: 20px; right: 20px; padding: 14px 20px; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar">
-        <h2>JURNAL PKL</h2>
-        <div class="user-info">Login sebagai:<br><b id="user-display">-</b></div>
-
-        <small style="color:#94a3b8; margin-bottom: 8px; display:block;">Daftar Anggota PKL:</small>
-        
-        <div id="sidebar-list" class="sidebar-list"></div>
-
-        <button onclick="logout()" class="btn-logout">Logout</button>
-    </aside>
-
-    <!-- CONTENT -->
-    <main class="content">
-        <header class="header">
-            <div class="header-title">
-                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-                <h2>DASHBOARD PKL</h2>
+    <!-- NAVBAR TOP -->
+    <header class="navbar">
+        <div class="brand">
+            <div class="brand-icon">J</div>
+            <div class="brand-info">
+                <h1>Jurnal PKL</h1>
+                <span>Enterprise Portal</span>
             </div>
-        </header>
+        </div>
+        <div class="profile-chip">
+            <div class="profile-avatar" id="avatar-initial">U</div>
+            <span class="profile-name" id="user-display">User</span>
+            <button class="btn-logout-icon" onclick="logout()" title="Logout">✕</button>
+        </div>
+    </header>
 
-        <h1 id="judul-anggota" style="margin-top: 10px;">Kegiatan</h1>
+    <!-- APP MAIN CONTENT -->
+    <main class="app-container">
 
-        <!-- AREA FORM INPUT -->
-        <div id="area-form"></div>
+        <!-- HERO STATS BANNER -->
+        <section class="hero-banner">
+            <div class="hero-top">
+                <div class="hero-title">
+                    <span>Aktivitas Siswa</span>
+                    <h2 id="hero-nama">-</h2>
+                </div>
+                <div class="badge-role" id="role-display">Siswa</div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="num" id="stat-total-jurnal">0</div>
+                    <div class="lbl">Total Jurnal</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="stat-status-absen">-</div>
+                    <div class="lbl">Absen Hari Ini</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="stat-jam-absen">--:--</div>
+                    <div class="lbl">Jam Masuk</div>
+                </div>
+            </div>
+        </section>
 
-        <!-- TABLE DATA -->
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 170px;">Tanggal & Waktu</th>
-                        <th style="width: 180px;">Judul</th>
-                        <th>Kegiatan</th>
-                        <th>Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody id="tabel-body">
-                    <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
-                </tbody>
-            </table>
+        <!-- CARD ABSENSI QUICK ACTION -->
+        <div class="absensi-card" id="area-absensi">
+            <div class="absensi-info">
+                <h3>Absensi Kehadiran</h3>
+                <p id="absensi-desc">Catat waktu kehadiran kamu hari ini secara real-time.</p>
+            </div>
+            <div class="absensi-actions" id="btn-group-absen">
+                <button class="btn-absen btn-absen-masuk" onclick="doAbsen('Masuk')">
+                    <span>📍</span> Absen Masuk
+                </button>
+                <button class="btn-absen btn-absen-pulang" onclick="doAbsen('Pulang')">
+                    <span>🚪</span> Absen Pulang
+                </button>
+            </div>
+        </div>
+
+        <div id="notice-viewer"></div>
+
+        <!-- TEAM CAROUSEL -->
+        <div class="section-header">
+            <span class="section-title">Pilih Anggota Tim</span>
+        </div>
+        <div class="team-carousel" id="team-list"></div>
+
+        <!-- SEARCH -->
+        <div class="controls-wrapper">
+            <div class="search-field">
+                <span style="color: var(--text-muted);">🔍</span>
+                <input type="text" id="search-input" placeholder="Cari aktivitas, judul, atau keterangan..." oninput="filterJurnal()">
+            </div>
+        </div>
+
+        <!-- TIMELINE FEED -->
+        <div class="section-header">
+            <span class="section-title">Timeline Kegiatan</span>
+        </div>
+        <div class="feed-list" id="feed-container">
+            <div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data kegiatan...</div>
         </div>
     </main>
-</div>
+
+    <!-- FLOATING ACTION BUTTON (FAB) -->
+    <button class="fab-trigger" id="fab-tambah" onclick="toggleSheet(true)">
+        <span style="font-size: 1.2rem;">+</span>
+        <span>Buat Jurnal</span>
+    </button>
+
+    <!-- FORM SHEET MODAL -->
+    <div id="sheet-modal" class="sheet-overlay">
+        <div class="sheet-content">
+            <div class="sheet-header">
+                <h2>Catat Jurnal Baru</h2>
+                <button class="btn-close" onclick="toggleSheet(false)">✕</button>
+            </div>
+            <form id="form-jurnal">
+                <div class="field">
+                    <label>Tanggal & Waktu</label>
+                    <input type="datetime-local" id="tanggal" required>
+                </div>
+                <div class="field">
+                    <label>Judul Kegiatan</label>
+                    <input type="text" id="judul" placeholder="Contoh: Maintenance Server Database" required>
+                </div>
+                <div class="field">
+                    <label>Nama Kegiatan Singkat</label>
+                    <input type="text" id="kegiatan" placeholder="Contoh: Pengecekan Backup Rutin" required>
+                </div>
+                <div class="field">
+                    <label>Keterangan Detail</label>
+                    <textarea id="keterangan" rows="3" placeholder="Tuliskan secara lengkap rincian tugas yang kamu selesaikan..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-simpan">Simpan ke Timeline</button>
+            </form>
+        </div>
+    </div>
 
 <script>
     const userEmail = localStorage.getItem('user_email');
@@ -237,7 +318,6 @@
     if (!userEmail) {
         window.location.href = "login.html";
     }
-    document.getElementById('user-display').innerText = `${userNama}`;
 
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
 
@@ -250,73 +330,81 @@
     ];
 
     let namaAnggotaDilihat = (userRole === 'viewer') ? daftarAnggotaBawaan[0] : userNama;
+    let rawJurnalData = [];
 
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-        document.getElementById('sidebar-overlay').classList.toggle('active');
-    }
+    // SET INITIAL USER UI
+    document.getElementById('user-display').innerText = userNama;
+    document.getElementById('avatar-initial').innerText = userNama.charAt(0).toUpperCase();
+    document.getElementById('role-display').innerText = (userRole === 'viewer') ? 'Viewer Admin' : 'Siswa PKL';
 
     function logout() {
-        localStorage.removeItem('user_email');
-        localStorage.removeItem('user_nama');
-        localStorage.removeItem('user_role');
+        localStorage.clear();
         window.location.href = "login.html";
     }
 
-    function renderSidebar() {
-        const sidebarContainer = document.getElementById('sidebar-list');
-        sidebarContainer.innerHTML = '';
+    function toggleSheet(show) {
+        const modal = document.getElementById('sheet-modal');
+        if (show) {
+            // Set default waktu sekarang ke input datetime-local
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('tanggal').value = now.toISOString().slice(0, 16);
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
 
-        let daftarAll = [...daftarAnggotaBawaan];
-        if (userRole !== 'viewer' && !daftarAll.includes(userNama)) {
-            daftarAll.push(userNama);
+    function renderTeamList() {
+        const container = document.getElementById('team-list');
+        container.innerHTML = '';
+
+        let listAll = [...daftarAnggotaBawaan];
+        if (userRole !== 'viewer' && !listAll.includes(userNama)) {
+            listAll.push(userNama);
         }
 
-        daftarAll.forEach(nama => {
-            const btn = document.createElement('button');
-            btn.innerText = nama;
-            if (nama === namaAnggotaDilihat) btn.classList.add('active');
-            btn.onclick = () => {
-                pilihAnggota(nama);
-                if (window.innerWidth <= 768) toggleSidebar();
-            };
-            sidebarContainer.appendChild(btn);
+        listAll.forEach(nama => {
+            const card = document.createElement('div');
+            card.className = `team-card ${nama === namaAnggotaDilihat ? 'active' : ''}`;
+            
+            // Inisial nama
+            const initials = nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            card.innerHTML = `
+                <div class="team-avatar">${initials}</div>
+                <div class="team-meta"><div class="name">${nama}</div></div>
+            `;
+            card.onclick = () => pilihAnggota(nama);
+            container.appendChild(card);
         });
     }
 
     function pilihAnggota(nama) {
         namaAnggotaDilihat = nama;
-        document.getElementById('judul-anggota').innerText = "Kegiatan : " + nama;
-        renderSidebar();
+        document.getElementById('hero-nama').innerText = nama;
+        renderTeamList();
 
-        const areaForm = document.getElementById('area-form');
+        const fabBtn = document.getElementById('fab-tambah');
+        const absensiCard = document.getElementById('area-absensi');
+        const noticeViewer = document.getElementById('notice-viewer');
 
         if (userRole === 'viewer') {
-            areaForm.innerHTML = `
-                <div class="notice-box">
-                    👁️ <b>Mode Admin / Viewer</b>: Anda sedang memantau jurnal <b>${nama}</b>.
-                </div>
-            `;
+            fabBtn.style.display = 'none';
+            absensiCard.style.display = 'none';
+            noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Viewer</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
         } else if (namaAnggotaDilihat === userNama) {
-            areaForm.innerHTML = `
-                <form id="form-jurnal" class="form">
-                    <input type="datetime-local" id="tanggal" required>
-                    <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
-                    <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
-                    <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
-                    <button type="submit" id="btn-simpan">Simpan Jurnal</button>
-                </form>
-            `;
-            pasangListenerForm();
+            fabBtn.style.display = 'flex';
+            absensiCard.style.display = 'flex';
+            noticeViewer.innerHTML = '';
         } else {
-            areaForm.innerHTML = `
-                <div class="notice-box" style="background:#fef3c7; color:#92400e;">
-                    🔒 Anda sedang melihat jurnal <b>${nama}</b>. Anda tidak dapat menginput data ke akun orang lain.
-                </div>
-            `;
+            fabBtn.style.display = 'none';
+            absensiCard.style.display = 'none';
+            noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
         }
 
         muatDataJurnal();
+        muatStatusAbsensi();
     }
 
     function formatTanggalWaktu(rawDate) {
@@ -325,61 +413,88 @@
         if (isNaN(dateObj.getTime())) return rawDate;
 
         return dateObj.toLocaleString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
         }).replace('.', ':');
     }
 
     async function muatDataJurnal() {
-        const tbody = document.getElementById('tabel-body');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>';
+        const feed = document.getElementById('feed-container');
+        feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data kegiatan...</div>';
 
         try {
             const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
-            const data = await response.json();
-
-            tbody.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada data jurnal.</td></tr>';
-                return;
+            rawJurnalData = await response.json();
+            
+            // Urutkan dari yang terbaru
+            if (Array.isArray(rawJurnalData)) {
+                rawJurnalData.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
             }
 
-            data.forEach((row) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${formatTanggalWaktu(row.tanggal)}</b></td>
-                    <td>${row.judul || '-'}</td>
-                    <td>${row.kegiatan}</td>
-                    <td>${row.keterangan || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            document.getElementById('stat-total-jurnal').innerText = rawJurnalData ? rawJurnalData.length : 0;
+            renderTimeline(rawJurnalData);
         } catch (error) {
-            console.error('Error fetching data:', error);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal mengambil data dari server.</td></tr>';
+            console.error(error);
+            feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
         }
     }
 
-    function pasangListenerForm() {
-        const form = document.getElementById('form-jurnal');
-        if (!form) return;
+    function renderTimeline(data) {
+        const feed = document.getElementById('feed-container');
+        feed.innerHTML = '';
 
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        if (!data || data.length === 0) {
+            feed.innerHTML = `
+                <div style="text-align:center; padding: 40px 20px; background: white; border-radius: var(--radius-xl); border: 1px solid var(--border);">
+                    <p style="font-weight: 700; color: var(--text-main);">Belum Ada Kegiatan</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Aktivitas jurnal yang kamu simpan akan muncul di sini.</p>
+                </div>
+            `;
+            return;
+        }
 
-            const btnSimpan = document.getElementById('btn-simpan');
-            btnSimpan.innerText = "Saving...";
-            btnSimpan.disabled = true;
+        data.forEach(row => {
+            const isAbsen = row.judul && row.judul.startsWith("ABSENSI:");
+            const card = document.createElement('article');
+            card.className = 'feed-card';
+            card.innerHTML = `
+                <div class="feed-dot" style="${isAbsen ? 'background: #22c55e;' : ''}"></div>
+                <div class="card-header">
+                    <div class="card-date">🕒 ${formatTanggalWaktu(row.tanggal)}</div>
+                    <span class="cat-pill" style="${isAbsen ? 'background: #dcfce7; color: #15803d;' : ''}">
+                        ${isAbsen ? 'ABSENSI' : 'KEGIATAN'}
+                    </span>
+                </div>
+                <h3 class="feed-title">${row.judul || '-'}</h3>
+                <div class="feed-sub">${row.kegiatan}</div>
+                <p class="feed-body">${row.keterangan || '-'}</p>
+            `;
+            feed.appendChild(card);
+        });
+    }
 
+    function filterJurnal() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const filtered = rawJurnalData.filter(item => {
+            const j = (item.judul || '').toLowerCase();
+            const k = (item.kegiatan || '').toLowerCase();
+            const ket = (item.keterangan || '').toLowerCase();
+            return j.includes(query) || k.includes(query) || ket.includes(query);
+        });
+        renderTimeline(filtered);
+    }
+
+    // HANDLER ABSENSI
+    async function doAbsen(tipe) {
+        if (confirm(`Apakah Anda yakin ingin melakukan Absen ${tipe}?`)) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            
             const payload = {
-                tanggal: document.getElementById('tanggal').value,
-                judul: document.getElementById('judul').value,
-                kegiatan: document.getElementById('kegiatan').value,
-                keterangan: document.getElementById('keterangan').value,
+                tanggal: now.toISOString(),
+                judul: `ABSENSI: ${tipe.toUpperCase()}`,
+                kegiatan: `Melakukan Absen ${tipe} PKL`,
+                keterangan: `Siswa melakukan Absen ${tipe} pada jam ${timeString} WIB.`,
                 nama: userNama
             };
 
@@ -391,26 +506,87 @@
                 });
 
                 if (response.ok) {
-                    alert('Jurnal berhasil disimpan!');
-                    document.getElementById('judul').value = '';
-                    document.getElementById('kegiatan').value = '';
-                    document.getElementById('keterangan').value = '';
-                    
+                    alert(`Absen ${tipe} berhasil dicatat!`);
                     muatDataJurnal();
+                    muatStatusAbsensi();
                 } else {
-                    alert('Gagal menyimpan data.');
+                    alert('Gagal melakukan absensi.');
                 }
-            } catch (error) {
-                console.error('Error post data:', error);
+            } catch (err) {
+                console.error(err);
                 alert('Terjadi kesalahan jaringan.');
-            } finally {
-                btnSimpan.innerText = "Simpan Jurnal";
-                btnSimpan.disabled = false;
             }
-        });
+        }
     }
 
-    renderSidebar();
+    function muatStatusAbsensi() {
+        // Cek apakah hari ini sudah ada jurnal tipe ABSENSI
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const absenToday = rawJurnalData.filter(item => 
+            item.tanggal && item.tanggal.slice(0, 10) === todayStr && item.judul && item.judul.startsWith("ABSENSI:")
+        );
+
+        const statusElem = document.getElementById('stat-status-absen');
+        const jamElem = document.getElementById('stat-jam-absen');
+
+        if (absenToday.length > 0) {
+            statusElem.innerText = "Hadir";
+            statusElem.style.color = "#22c55e";
+            
+            const firstAbsen = absenToday[absenToday.length - 1]; // Absen pertama (masuk)
+            const d = new Date(firstAbsen.tanggal);
+            jamElem.innerText = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        } else {
+            statusElem.innerText = "Belum";
+            statusElem.style.color = "#ef4444";
+            jamElem.innerText = "--:--";
+        }
+    }
+
+    // HANDLER SUBMIT JURNAL BARU
+    document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('btn-simpan');
+        btn.innerText = "Menyimpan...";
+        btn.disabled = true;
+
+        const payload = {
+            tanggal: document.getElementById('tanggal').value,
+            judul: document.getElementById('judul').value,
+            kegiatan: document.getElementById('kegiatan').value,
+            keterangan: document.getElementById('keterangan').value,
+            nama: userNama
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert('Jurnal berhasil ditambahkan ke timeline!');
+                document.getElementById('judul').value = '';
+                document.getElementById('kegiatan').value = '';
+                document.getElementById('keterangan').value = '';
+                toggleSheet(false);
+                muatDataJurnal();
+            } else {
+                alert('Gagal menyimpan jurnal.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan jaringan.');
+        } finally {
+            btn.innerText = "Simpan ke Timeline";
+            btn.disabled = false;
+        }
+    });
+
+    // INIT INITIAL LOAD
+    renderTeamList();
     pilihAnggota(namaAnggotaDilihat);
 </script>
 
