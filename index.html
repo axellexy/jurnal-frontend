@@ -11,6 +11,8 @@
             --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
             --accent-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             --success-gradient: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            --warning-gradient: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            --danger-gradient: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             --bg-body: #f1f5f9;
             --surface: #ffffff;
             --surface-glass: rgba(255, 255, 255, 0.85);
@@ -72,7 +74,9 @@
         .stat-item .lbl { font-size: 0.68rem; opacity: 0.85; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
 
         /* ABSENSI QUICK ACTION */
-        .absensi-section-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+        .absensi-section-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-izin-link { background: none; border: none; color: var(--primary); font-weight: 700; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+        
         .absensi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
         .absen-box {
             background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
@@ -111,7 +115,13 @@
         .custom-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); font-weight: 600; }
         .custom-table tr:last-child td { border-bottom: none; }
         .custom-table tr:nth-child(even) { background: #f8fafc; }
-        .badge-status-h { background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; }
+        
+        /* BADGE STATUS */
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; display: inline-block; }
+        .badge-status.Hadir { background: #dcfce7; color: #15803d; }
+        .badge-status.Sakit { background: #fef3c7; color: #b45309; }
+        .badge-status.Izin { background: #e0f2fe; color: #0369a1; }
+        .badge-status.Alpha { background: #fee2e2; color: #b91c1c; }
 
         /* TEAM CAROUSEL */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
@@ -165,7 +175,7 @@
         .btn-close { background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800; }
         .field { margin-bottom: 16px; }
         .field label { display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
-        .field input, .field textarea { width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9rem; outline: none; background: #f8fafc; }
+        .field input, .field textarea, .field select { width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9rem; outline: none; background: #f8fafc; }
         .btn-submit { width: 100%; background: var(--primary-gradient); color: white; border: none; padding: 16px; border-radius: var(--radius-lg); font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 10px; }
         .notice-box { background: #fef3c7; color: #92400e; padding: 12px 16px; border-radius: var(--radius-lg); font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
 
@@ -221,7 +231,10 @@
         </section>
 
         <!-- KELOMPOK ABSENSI HARI INI -->
-        <div class="absensi-section-title" id="title-absensi-section">Presensi Hari Ini</div>
+        <div class="absensi-section-title" id="title-absensi-section">
+            <span>Presensi Hari Ini</span>
+            <button class="btn-izin-link" onclick="toggleIzinModal(true)">+ Form Sakit / Izin / Alpha</button>
+        </div>
         <div class="absensi-grid" id="area-absensi">
             
             <div class="absen-box">
@@ -290,10 +303,11 @@
                             <th>Masuk</th>
                             <th>Keluar</th>
                             <th>Status</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody id="table-absen-body">
-                        <tr><td colspan="5" style="text-align:center;">Memuat data absensi...</td></tr>
+                        <tr><td colspan="6" style="text-align:center;">Memuat data absensi...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -301,13 +315,13 @@
 
     </main>
 
-    <!-- FAB -->
+    <!-- FAB JURNAL -->
     <button class="fab-trigger" id="fab-tambah" onclick="toggleSheet(true)">
         <span style="font-size: 1.2rem;">+</span>
         <span>Buat Jurnal</span>
     </button>
 
-    <!-- MODAL FORM SHEET -->
+    <!-- MODAL FORM JURNAL -->
     <div id="sheet-modal" class="sheet-overlay">
         <div class="sheet-content">
             <div class="sheet-header">
@@ -332,6 +346,31 @@
                     <textarea id="keterangan" rows="3" placeholder="Tuliskan rincian tugas..." required></textarea>
                 </div>
                 <button type="submit" class="btn-submit" id="btn-simpan">Simpan ke Timeline</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL FORM IZIN / SAKIT / ALPHA -->
+    <div id="izin-modal" class="sheet-overlay">
+        <div class="sheet-content">
+            <div class="sheet-header">
+                <h2>Form Absensi Khusus</h2>
+                <button class="btn-close" onclick="toggleIzinModal(false)">✕</button>
+            </div>
+            <form id="form-izin">
+                <div class="field">
+                    <label>Status Kehadiran</label>
+                    <select id="izin-status" required>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Alpha">Alpha</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Alasan / Keterangan</label>
+                    <textarea id="izin-alasan" rows="3" placeholder="Contoh: Demam & flu / Acara keluarga..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-simpan-izin">Simpan Ke Rekap Absen</button>
             </form>
         </div>
     </div>
@@ -370,6 +409,12 @@
         } else {
             modal.classList.remove('active');
         }
+    }
+
+    function toggleIzinModal(show) {
+        const modal = document.getElementById('izin-modal');
+        if (show) modal.classList.add('active');
+        else modal.classList.remove('active');
     }
 
     function switchTab(tab) {
@@ -425,7 +470,7 @@
         } else if (namaAnggotaDilihat === userNama) {
             fabBtn.style.display = 'flex';
             absensiCard.style.display = 'grid';
-            absensiTitle.style.display = 'block';
+            absensiTitle.style.display = 'flex';
             noticeViewer.innerHTML = '';
         } else {
             fabBtn.style.display = 'none';
@@ -512,7 +557,7 @@
         tbody.innerHTML = '';
 
         if (!dataAbsen || dataAbsen.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
             return;
         }
 
@@ -520,11 +565,17 @@
         const grouped = {};
         dataAbsen.forEach(item => {
             const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
-            if (!grouped[tglKey]) grouped[tglKey] = { masuk: '-', keluar: '-', rawDate: item.tanggal };
+            if (!grouped[tglKey]) grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal };
 
             const timeStr = new Date(item.tanggal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            
             if (item.judul.includes("MASUK")) grouped[tglKey].masuk = timeStr + ' WIB';
-            if (item.judul.includes("KELUAR")) grouped[tglKey].keluar = timeStr + ' WIB';
+            else if (item.judul.includes("KELUAR")) grouped[tglKey].keluar = timeStr + ' WIB';
+            else if (item.judul.includes("IZIN:") || item.judul.includes("SAKIT:") || item.judul.includes("ALPHA:")) {
+                const st = item.judul.split(":")[1].trim();
+                grouped[tglKey].status = st.charAt(0).toUpperCase() + st.slice(1).toLowerCase();
+                grouped[tglKey].keterangan = item.keterangan || '-';
+            }
         });
 
         const sortedKeys = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
@@ -538,7 +589,8 @@
                 <td>${formatTanggalOnly(rowData.rawDate)}</td>
                 <td style="color: #16a34a; font-weight: 700;">${rowData.masuk}</td>
                 <td style="color: #0284c7; font-weight: 700;">${rowData.keluar}</td>
-                <td><span class="badge-status-h">Hadir</span></td>
+                <td><span class="badge-status ${rowData.status}">${rowData.status}</span></td>
+                <td style="color: var(--text-muted);">${rowData.keterangan}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -564,7 +616,7 @@
                 tanggal: now.toISOString(),
                 judul: `ABSENSI: ${tipe.toUpperCase()}`,
                 kegiatan: `Melakukan Absen ${tipe} PKL`,
-                keterangan: `Siswa melakukan Absen ${tipe} pada jam ${timeString} WIB.`,
+                keterangan: `Presensi ${tipe} tercatat jam ${timeString} WIB`,
                 nama: userNama
             };
 
@@ -597,10 +649,31 @@
         const absenKeluarToday = listAbsensi.find(item => 
             item.tanggal && item.tanggal.slice(0, 10) === todayStr && item.judul === "ABSENSI: KELUAR"
         );
+        const absenKhususToday = listAbsensi.find(item => 
+            item.tanggal && item.tanggal.slice(0, 10) === todayStr && (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA"))
+        );
 
         const btnMasuk = document.getElementById('btn-absen-masuk');
         const timeMasuk = document.getElementById('time-absen-masuk');
         const statMasuk = document.getElementById('stat-jam-masuk');
+
+        const btnKeluar = document.getElementById('btn-absen-keluar');
+        const timeKeluar = document.getElementById('time-absen-keluar');
+        const statKeluar = document.getElementById('stat-jam-keluar');
+
+        if (absenKhususToday) {
+            const statusStr = absenKhususToday.judul.replace("ABSENSI: ", "");
+            timeMasuk.innerText = statusStr;
+            statMasuk.innerText = statusStr;
+            btnMasuk.disabled = true;
+            btnMasuk.innerText = `Siswa ${statusStr}`;
+
+            timeKeluar.innerText = statusStr;
+            statKeluar.innerText = statusStr;
+            btnKeluar.disabled = true;
+            btnKeluar.innerText = `Siswa ${statusStr}`;
+            return;
+        }
 
         if (absenMasukToday) {
             const d = new Date(absenMasukToday.tanggal);
@@ -615,10 +688,6 @@
             btnMasuk.disabled = false;
             btnMasuk.innerText = "Klik Absen Masuk";
         }
-
-        const btnKeluar = document.getElementById('btn-absen-keluar');
-        const timeKeluar = document.getElementById('time-absen-keluar');
-        const statKeluar = document.getElementById('stat-jam-keluar');
 
         if (absenKeluarToday) {
             const d = new Date(absenKeluarToday.tanggal);
@@ -635,6 +704,7 @@
         }
     }
 
+    // SUBMIT JURNAL
     document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('btn-simpan');
@@ -671,6 +741,49 @@
             alert('Terjadi kesalahan jaringan.');
         } finally {
             btn.innerText = "Simpan ke Timeline";
+            btn.disabled = false;
+        }
+    });
+
+    // SUBMIT FORM SAKIT / IZIN / ALPHA
+    document.getElementById('form-izin').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-simpan-izin');
+        btn.innerText = "Menyimpan...";
+        btn.disabled = true;
+
+        const status = document.getElementById('izin-status').value;
+        const alasan = document.getElementById('izin-alasan').value;
+        const now = new Date();
+
+        const payload = {
+            tanggal: now.toISOString(),
+            judul: `ABSENSI: ${status.toUpperCase()}`,
+            kegiatan: `Pengajuan Status ${status}`,
+            keterangan: alasan,
+            nama: userNama
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert(`Pengajuan ${status} berhasil disimpan!`);
+                document.getElementById('izin-alasan').value = '';
+                toggleIzinModal(false);
+                muatDataJurnal();
+            } else {
+                alert('Gagal menyimpan pengajuan.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan jaringan.');
+        } finally {
+            btn.innerText = "Simpan Ke Rekap Absen";
             btn.disabled = false;
         }
     });
