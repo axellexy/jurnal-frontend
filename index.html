@@ -433,8 +433,14 @@
 
     function toggleIzinModal(show) {
         const modal = document.getElementById('izin-modal');
-        if (show) modal.classList.add('active');
-        else modal.classList.remove('active');
+        if (show) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('izin-tanggal').value = now.toISOString().slice(0, 16);
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
     }
 
     function switchTab(tab) {
@@ -458,6 +464,7 @@
 
     function renderTeamList() {
         const container = document.getElementById('team-list');
+        if (!container) return;
         container.innerHTML = '';
         let listAll = [...daftarAnggotaBawaan];
         if (userRole !== 'viewer' && !listAll.includes(userNama)) { listAll.push(userNama); }
@@ -474,7 +481,9 @@
 
     function pilihAnggota(nama) {
         namaAnggotaDilihat = nama;
-        document.getElementById('hero-nama').innerText = nama;
+        const heroNama = document.getElementById('hero-nama');
+        if (heroNama) heroNama.innerText = nama;
+        
         renderTeamList();
 
         const fabBtn = document.getElementById('fab-tambah');
@@ -483,20 +492,20 @@
         const noticeViewer = document.getElementById('notice-viewer');
 
         if (userRole === 'viewer') {
-            fabBtn.style.display = 'none';
-            absensiCard.style.display = 'none';
-            absensiTitle.style.display = 'none';
-            noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Pembimbing (Viewer)</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Pembimbing (Viewer)</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
         } else if (namaAnggotaDilihat === userNama) {
-            fabBtn.style.display = 'flex';
-            absensiCard.style.display = 'grid';
-            absensiTitle.style.display = 'flex';
-            noticeViewer.innerHTML = '';
+            if (fabBtn) fabBtn.style.display = 'flex';
+            if (absensiCard) absensiCard.style.display = 'grid';
+            if (absensiTitle) absensiTitle.style.display = 'flex';
+            if (noticeViewer) noticeViewer.innerHTML = '';
         } else {
-            fabBtn.style.display = 'none';
-            absensiCard.style.display = 'none';
-            absensiTitle.style.display = 'none';
-            noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
         }
 
         muatDataJurnal();
@@ -518,32 +527,34 @@
 
     async function muatDataJurnal() {
         const feed = document.getElementById('feed-container');
-        feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data...</div>';
+        if (feed) feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data...</div>';
 
         try {
             const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
             rawDataAll = await response.json();
 
-            // PISAHKAN DATA: ABSENSI TERPISAH DARI TIMELINE KEGIATAN
+            // PISAHKAN DATA KEGIATAN DAN ABSENSI
             listKegiatan = rawDataAll.filter(item => !(item.judul && item.judul.startsWith("ABSENSI:")));
             listAbsensi = rawDataAll.filter(item => item.judul && item.judul.startsWith("ABSENSI:"));
 
-            // Urutkan terbaru
             listKegiatan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-            document.getElementById('stat-total-jurnal').innerText = listKegiatan.length;
+            const statJurnalElem = document.getElementById('stat-total-jurnal');
+            if (statJurnalElem) statJurnalElem.innerText = listKegiatan.length;
             
             renderTimeline(listKegiatan);
             renderTabelAbsensi(listAbsensi);
             muatStatusAbsensi();
+            kalkulasiStatistik();
         } catch (error) {
             console.error(error);
-            feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
+            if (feed) feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
         }
     }
 
     function renderTimeline(data) {
         const feed = document.getElementById('feed-container');
+        if (!feed) return;
         feed.innerHTML = '';
 
         if (!data || data.length === 0) {
@@ -572,9 +583,10 @@
         });
     }
 
-    // TERAMBIL & DISUSUN SECARA DETAIL DI REKAP ABSENSI (SAKIT/IZIN/ALPHA)
+    // RENDRING TABEL ABSENSI DENGAN DETEKSI TERLAMBAT (> 09:00 WIB)
     function renderTabelAbsensi(dataAbsen) {
         const tbody = document.getElementById('table-absen-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!dataAbsen || dataAbsen.length === 0) {
@@ -586,17 +598,25 @@
         dataAbsen.forEach(item => {
             const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
             if (!grouped[tglKey]) {
-                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal };
+                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal, isLate: false, lateMinutes: 0 };
             }
 
-            const timeStr = new Date(item.tanggal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            const dObj = new Date(item.tanggal);
+            const timeStr = dObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
             
             if (item.judul.includes("MASUK")) {
                 grouped[tglKey].masuk = timeStr + ' WIB';
+
+                // CEK KETERLAMBATAN (Batas 09:00 WIB)
+                const jam = dObj.getHours();
+                const menit = dObj.getMinutes();
+                if (jam > 9 || (jam === 9 && menit > 0)) {
+                    grouped[tglKey].isLate = true;
+                    grouped[tglKey].lateMinutes = ((jam - 9) * 60) + menit;
+                }
             } else if (item.judul.includes("KELUAR")) {
                 grouped[tglKey].keluar = timeStr + ' WIB';
             } else if (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA")) {
-                // Ekstrak status (Sakit / Izin / Alpha)
                 const parts = item.judul.split(":");
                 const st = parts[1] ? parts[1].trim() : "Sakit";
                 
@@ -613,12 +633,19 @@
         sortedKeys.forEach(key => {
             const rowData = grouped[key];
             const tr = document.createElement('tr');
+
+            // Format Tampilan Status
+            let statusHtml = `<span class="badge-status ${rowData.status}">${rowData.status}</span>`;
+            if (rowData.isLate) {
+                statusHtml += ` <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-left: 4px;">Terlambat (${rowData.lateMinutes} mnt)</span>`;
+            }
+
             tr.innerHTML = `
                 <td>${no++}</td>
                 <td>${formatTanggalOnly(rowData.rawDate)}</td>
-                <td style="color: #16a34a; font-weight: 700;">${rowData.masuk}</td>
+                <td style="color: ${rowData.isLate ? '#ef4444' : '#16a34a'}; font-weight: 700;">${rowData.masuk}</td>
                 <td style="color: #0284c7; font-weight: 700;">${rowData.keluar}</td>
-                <td><span class="badge-status ${rowData.status}">${rowData.status}</span></td>
+                <td>${statusHtml}</td>
                 <td style="color: var(--text-muted);">${rowData.keterangan}</td>
             `;
             tbody.appendChild(tr);
@@ -690,6 +717,8 @@
         const timeKeluar = document.getElementById('time-absen-keluar');
         const statKeluar = document.getElementById('stat-jam-keluar');
 
+        if (!btnMasuk || !btnKeluar) return;
+
         if (absenKhususToday) {
             const statusStr = absenKhususToday.judul.replace("ABSENSI: ", "");
             timeMasuk.innerText = statusStr;
@@ -733,92 +762,156 @@
         }
     }
 
-    // SUBMIT JURNAL
-    document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-simpan');
-        btn.innerText = "Menyimpan...";
-        btn.disabled = true;
+    // SUBMIT JURNAL KEGIATAN
+    const formJurnal = document.getElementById('form-jurnal');
+    if (formJurnal) {
+        formJurnal.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
 
-        const payload = {
-            tanggal: document.getElementById('tanggal').value,
-            judul: document.getElementById('judul').value,
-            kegiatan: document.getElementById('kegiatan').value,
-            keterangan: document.getElementById('keterangan').value,
-            nama: userNama
-        };
+            const payload = {
+                tanggal: document.getElementById('tanggal').value,
+                judul: document.getElementById('judul').value,
+                kegiatan: document.getElementById('kegiatan').value,
+                keterangan: document.getElementById('keterangan').value,
+                nama: userNama
+            };
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (response.ok) {
-                alert('Jurnal berhasil ditambahkan!');
-                document.getElementById('judul').value = '';
-                document.getElementById('kegiatan').value = '';
-                document.getElementById('keterangan').value = '';
-                toggleSheet(false);
-                muatDataJurnal();
-            } else {
-                alert('Gagal menyimpan jurnal.');
+                if (response.ok) {
+                    alert('Jurnal berhasil ditambahkan!');
+                    document.getElementById('judul').value = '';
+                    document.getElementById('kegiatan').value = '';
+                    document.getElementById('keterangan').value = '';
+                    toggleSheet(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan jurnal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan ke Timeline";
+                btn.disabled = false;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.innerText = "Simpan ke Timeline";
-            btn.disabled = false;
-        }
-    });
+        });
+    }
 
-    // SUBMIT FORM SAKIT / IZIN / ALPHA -> LANGSUNG MASUK REKAP ABSENSI
-    document.getElementById('form-izin').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-simpan-izin');
-        btn.innerText = "Menyimpan...";
-        btn.disabled = true;
+    // SUBMIT FORM ABSENSI / IZIN / SUSULAN
+    const formIzin = document.getElementById('form-izin');
+    if (formIzin) {
+        formIzin.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan-izin');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
 
-        const status = document.getElementById('izin-status').value;
-        const alasan = document.getElementById('izin-alasan').value;
-        const now = new Date();
+            const tglInput = document.getElementById('izin-tanggal').value;
+            const status = document.getElementById('izin-status').value;
+            const alasan = document.getElementById('izin-alasan').value || `Absensi ${status}`;
 
-        const payload = {
-            tanggal: now.toISOString(),
-            judul: `ABSENSI: ${status.toUpperCase()}`,
-            kegiatan: `Pengajuan Status ${status}`,
-            keterangan: alasan,
-            nama: userNama
-        };
+            const selectedDate = new Date(tglInput);
+            const timeStr = selectedDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const payload = {
+                tanggal: selectedDate.toISOString(),
+                judul: `ABSENSI: ${status.toUpperCase()}`,
+                kegiatan: status === 'MASUK' || status === 'KELUAR' ? `Melakukan Absen ${status}` : `Pengajuan Status ${status}`,
+                keterangan: status === 'MASUK' || status === 'KELUAR' ? `Presensi ${status} tercatat jam ${timeStr} WIB (${alasan})` : alasan,
+                nama: userNama
+            };
 
-            if (response.ok) {
-                alert(`Pengajuan ${status} berhasil dikirim dan dicatat di Rekap Absensi!`);
-                document.getElementById('izin-alasan').value = '';
-                toggleIzinModal(false);
-                muatDataJurnal();
-            } else {
-                alert('Gagal menyimpan pengajuan.');
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert(`Data presensi tanggal ${formatTanggalOnly(tglInput)} berhasil disimpan!`);
+                    document.getElementById('izin-alasan').value = '';
+                    toggleIzinModal(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan presensi.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan Presensi";
+                btn.disabled = false;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.innerText = "Simpan Ke Rekap Absen";
-            btn.disabled = false;
+        });
+    }
+
+    function kalkulasiStatistik(dataKustom) {
+        const dataHadir = dataKustom || listAbsensi;
+        const dataJurnal = dataKustom || listKegiatan;
+
+        const totalHadir = dataHadir.filter(d => d.judul && d.judul.includes('MASUK')).length;
+        const totalIzin = dataHadir.filter(d => d.judul && (d.judul.includes('IZIN') || d.judul.includes('SAKIT'))).length;
+        const totalJurnal = dataJurnal.length;
+
+        if (document.getElementById('stat-hadir')) document.getElementById('stat-hadir').innerText = totalHadir;
+        if (document.getElementById('stat-izin')) document.getElementById('stat-izin').innerText = totalIzin;
+        if (document.getElementById('stat-jurnal')) document.getElementById('stat-jurnal').innerText = totalJurnal;
+    }
+
+    function filterRiwayat() {
+        const filterNama = document.getElementById('filter-nama') ? document.getElementById('filter-nama').value : 'SEMUA';
+        const filterTanggal = document.getElementById('filter-tanggal') ? document.getElementById('filter-tanggal').value : '';
+
+        if (filterNama !== 'SEMUA' && filterNama !== namaAnggotaDilihat) {
+            pilihAnggota(filterNama);
+            return;
         }
-    });
+
+        let hasilKegiatan = listKegiatan;
+        let hasilAbsensi = listAbsensi;
+
+        if (filterTanggal) {
+            hasilKegiatan = hasilKegiatan.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+            hasilAbsensi = hasilAbsensi.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+        }
+
+        renderTimeline(hasilKegiatan);
+        renderTabelAbsensi(hasilAbsensi);
+        kalkulasiStatistik(hasilAbsensi);
+    }
+
+    function resetFilter() {
+        if (document.getElementById('filter-nama')) document.getElementById('filter-nama').value = 'SEMUA';
+        if (document.getElementById('filter-tanggal')) document.getElementById('filter-tanggal').value = '';
+        renderTimeline(listKegiatan);
+        renderTabelAbsensi(listAbsensi);
+        kalkulasiStatistik();
+    }
 
     renderTeamList();
     pilihAnggota(namaAnggotaDilihat);
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (userRole === 'viewer' && document.getElementById('filter-nama')) {
+            document.getElementById('filter-nama').style.display = 'block';
+        }
+    });
 </script>
 
 </body>
