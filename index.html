@@ -89,7 +89,7 @@
         /* ABSENSI QUICK ACTION */
         .absensi-section-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .btn-izin-link { background: none; border: none; color: var(--primary); font-weight: 700; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
-
+        
         .absensi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
         .absen-box {
             background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
@@ -118,578 +118,998 @@
         }
         .tab-btn.active { background: var(--text-main); color: white; }
 
-        /* CARDS & TIMELINE */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-title { font-size: 1.1rem; font-weight: 800; }
+        /* TAB REKAP TABEL ABSENSI */
+        .table-container {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
+            overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 28px;
+        }
+        .custom-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+        .custom-table th { background: #1e293b; color: white; padding: 14px 16px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        .custom-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); font-weight: 600; }
+        .custom-table tr:last-child td { border-bottom: none; }
+        .custom-table tr:nth-child(even) { background: #f8fafc; }
+        
+        /* BADGE STATUS REKAP ABSENSI */
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; display: inline-block; }
+        .badge-status.Hadir { background: #dcfce7; color: #15803d; }
+        .badge-status.Sakit { background: #fef3c7; color: #b45309; }
+        .badge-status.Izin { background: #e0f2fe; color: #0369a1; }
+        .badge-status.Alpha { background: #fee2e2; color: #b91c1c; }
 
-        .journal-list { display: flex; flex-direction: column; gap: 14px; }
-        .journal-card {
+        /* TEAM CAROUSEL */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 0.85rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .team-carousel { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 24px; scrollbar-width: none; }
+        .team-carousel::-webkit-scrollbar { display: none; }
+        .team-card {
+            flex: 0 0 auto; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-sm);
+        }
+        .team-card.active { background: var(--text-main); border-color: var(--text-main); color: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2); }
+        .team-avatar { width: 34px; height: 34px; border-radius: 10px; background: #e0e7ff; color: #4338ca; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
+        .team-card.active .team-avatar { background: rgba(255,255,255,0.2); color: white; }
+        .team-meta .name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+
+        /* SEARCH INPUT */
+        .search-field {
             background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            padding: 18px; box-shadow: var(--shadow-sm); transition: transform 0.2s;
+            padding: 0 16px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); margin-bottom: 20px;
         }
-        .journal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .journal-date { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
-        .journal-category { font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: #f1f5f9; color: var(--text-main); }
-        
-        .journal-body { font-size: 0.88rem; line-height: 1.5; color: #334155; margin-bottom: 12px; }
-        
-        .journal-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 0.75rem; }
-        .status-badge { display: flex; align-items: center; gap: 6px; font-weight: 700; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .status-pending .status-dot { background: #d97706; }
-        .status-approved .status-dot { background: #16a34a; }
-        .status-rejected .status-dot { background: #dc2626; }
+        .search-field input { width: 100%; border: none; padding: 14px 0; font-size: 0.9rem; outline: none; background: transparent; }
 
-        /* FLOATING ACTION BUTTON (FAB) */
-        .fab-bottom {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 90;
-            width: calc(100% - 40px); max-width: 780px;
+        /* TIMELINE FEED */
+        .feed-list { position: relative; padding-left: 24px; border-left: 2px dashed #cbd5e1; margin-left: 12px; }
+        .feed-card {
+            position: relative; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm);
         }
-        .btn-fab {
-            width: 100%; background: var(--text-main); color: white; border: none;
-            padding: 16px; border-radius: 18px; font-weight: 800; font-size: 0.95rem;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: all 0.2s;
-        }
-        .btn-fab:active { transform: scale(0.98); }
+        .feed-dot { position: absolute; left: -33px; top: 24px; width: 14px; height: 14px; border-radius: 50%; background: var(--primary); border: 3px solid var(--bg-body); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .card-date { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+        .cat-pill { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; background: #e0e7ff; color: #4338ca; }
+        .feed-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+        .feed-sub { font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 12px; }
+        .feed-body { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; background: #f8fafc; padding: 14px; border-radius: var(--radius-lg); border: 1px solid #f1f5f9; }
 
-        /* MODAL DIALOG */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
-            z-index: 200; display: none; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.2s;
+        /* FAB & MODAL */
+        .fab-trigger {
+            position: fixed; bottom: 28px; right: 28px; z-index: 120;
+            background: var(--primary-gradient); color: white; border: none;
+            padding: 16px 26px; border-radius: 40px; font-weight: 800; font-size: 0.95rem;
+            cursor: pointer; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
         }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        
-        .modal-card {
-            background: var(--surface); width: 100%; max-width: 500px; border-top-left-radius: 28px;
-            border-top-right-radius: 28px; padding: 24px; max-height: 90vh; overflow-y: auto;
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .sheet-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 200; display: none; place-items: center; padding: 20px; }
+        .sheet-overlay.active { display: grid; }
+        .sheet-content { background: var(--surface); width: 100%; max-width: 520px; border-radius: var(--radius-xl); padding: 28px; }
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sheet-header h2 { font-size: 1.2rem; font-weight: 800; }
+        .btn-close { background: #f1f5f9; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-weight: 800; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .field input, .field textarea, .field select { width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.9rem; outline: none; background: #f8fafc; }
+        .btn-submit { width: 100%; background: var(--primary-gradient); color: white; border: none; padding: 16px; border-radius: var(--radius-lg); font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 10px; }
+        .notice-box { background: #fef3c7; color: #92400e; padding: 12px 16px; border-radius: var(--radius-lg); font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
 
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 1.1rem; font-weight: 800; }
-        .btn-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: 800; cursor: pointer; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
-        .form-control {
-            width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 12px;
-            font-size: 0.9rem; outline: none; background: #f8fafc; transition: border-color 0.2s;
+        @media (max-width: 640px) {
+            .absensi-grid { grid-template-columns: 1fr; }
+            .table-container { overflow-x: auto; }
         }
-        .form-control:focus { border-color: var(--primary); background: #ffffff; }
-        textarea.form-control { resize: vertical; min-height: 100px; }
+        /* Style Tombol Hapus / Delete */
+.btn-delete {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    color: #ef4444 !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
 
-        .btn-submit {
-            width: 100%; background: var(--primary-gradient); color: white; border: none;
-            padding: 14px; border-radius: 12px; font-weight: 800; font-size: 0.9rem;
-            cursor: pointer; margin-top: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-        }
-
-        /* MEDIA UPLOAD PREVIEW */
-        .file-upload-box {
-            border: 2px dashed var(--border); border-radius: 12px; padding: 16px;
-            text-align: center; cursor: pointer; background: #f8fafc;
-        }
-        .file-upload-box input { display: none; }
-        .upload-label { font-size: 0.8rem; font-weight: 700; color: var(--primary); }
-
-        /* LOGIN PAGE OVERLAY */
-        #loginView {
-            position: fixed; inset: 0; background: var(--bg-body); z-index: 300;
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-card {
-            background: var(--surface); width: 100%; max-width: 400px; border-radius: var(--radius-xl);
-            padding: 32px 24px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); text-align: center;
-        }
-        .login-brand { width: 56px; height: 56px; background: var(--primary-gradient); border-radius: 16px; display: grid; place-items: center; color: white; margin: 0 auto 16px; font-size: 1.5rem; font-weight: 800; }
-        .login-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
-        .login-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px; }
-
-        /* VIEW TOGGLING */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+.btn-delete:hover {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+}
     </style>
 </head>
 <body>
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginView">
-        <div class="login-card">
+    <!-- NAVBAR TOP -->
+    <header class="navbar">
+        <div class="brand">
             <div class="brand-icon">
-                <img src="assets/img/smkn2.png" alt="Logo SMKN 2 Indramayu">
+    <img src="logo.png" alt="Logo Jurnal PKL">
+</div>
+            <div class="brand-info">
+                <h1>Jurnal PKL Gloria</h1>
+                <span>Enterprise Portal</span>
             </div>
-            <h2 class="login-title">Enterprise Portal</h2>
-            <p class="login-subtitle">Jurnal & Absensi PKL Digital</p>
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group" style="text-align: left;">
-                    <label class="form-label">NISN / ID Siswa</label>
-                    <input type="text" id="loginId" class="form-control" placeholder="Masukkan ID Siswa" required>
-                </div>
-                <div class="form-group" style="text-align: left;">
-                    <label class="form-label">Kata Sandi</label>
-                    <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-submit" style="margin-top: 12px;">Masuk ke Portal</button>
-            </form>
         </div>
-    </div>
+        <div class="profile-chip">
+            <div class="profile-avatar" id="avatar-initial">U</div>
+            <span class="profile-name" id="user-display">User</span>
+            <button class="btn-logout-icon" onclick="logout()" title="Logout">✕</button>
+        </div>
+    </header>
 
-    <!-- MAIN APP VIEW -->
-    <div id="appView" style="display: none;">
-        
-        <!-- NAVBAR -->
-        <nav class="navbar">
-            <div class="brand">
-                <div class="brand-icon">
-                    <img src="assets/img/smkn2.png" alt="Logo SMKN 2 Indramayu">
+    <main class="app-container">
+
+        <!-- HERO BANNER -->
+        <section class="hero-banner">
+            <div class="hero-top">
+                <div class="hero-title">
+                    <span>Aktivitas Siswa</span>
+                    <h2 id="hero-nama">-</h2>
                 </div>
-                <div class="brand-info">
-                    <h1>Portal PKL</h1>
-                    <span>SMK Negeri 2 Indramayu</span>
+                <div class="badge-role" id="role-display">Siswa</div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="num" id="stat-total-jurnal">0</div>
+                    <div class="lbl">Total Jurnal</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="stat-jam-masuk">--:--</div>
+                    <div class="lbl">Jam Masuk</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="stat-jam-keluar">--:--</div>
+                    <div class="lbl">Jam Keluar</div>
                 </div>
             </div>
-            <div class="profile-chip">
-                <div class="profile-avatar" id="userAvatar">A</div>
-                <span class="profile-name" id="userName">Ahmad S.</span>
-                <button class="btn-logout-icon" onclick="handleLogout()" title="Keluar">✕</button>
-            </div>
-        </nav>
+        </section>
 
-        <div class="app-container">
+        <!-- KELOMPOK ABSENSI HARI INI -->
+        <div class="absensi-section-title" id="title-absensi-section">
+            <span>Presensi Hari Ini</span>
+            <button class="btn-izin-link" onclick="toggleIzinModal(true)">+ Form Sakit / Izin / Alpha</button>
+        </div>
+        <div class="absensi-grid" id="area-absensi">
             
-            <!-- HERO STATS CARD -->
-            <div class="hero-banner">
-                <div class="hero-top">
-                    <div class="hero-title">
-                        <span>Ringkasan Kehadiran</span>
-                        <h2 id="heroMonth">Agustus 2026</h2>
+            <div class="absen-box">
+                <div>
+                    <div class="absen-box-header">
+                        <span class="absen-tag masuk">Absen Masuk</span>
+                        <span style="font-size: 1.2rem;">📍</span>
                     </div>
-                    <div class="badge-role" id="userRole">Siswa PKL</div>
+                    <div class="absen-title">Presensi Masuk</div>
+                    <div class="absen-time" id="time-absen-masuk">Belum Absen</div>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <div class="num" id="statHadir">0</div>
-                        <div class="lbl">Hadir</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="num" id="statIzin">0</div>
-                        <div class="lbl">Izin/Sakit</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="num" id="statJurnal">0</div>
-                        <div class="lbl">Jurnal</div>
-                    </div>
-                </div>
+                <button class="btn-absen-act masuk" id="btn-absen-masuk" onclick="doAbsen('Masuk')">
+                    Klik Absen Masuk
+                </button>
             </div>
 
-            <!-- ABSENSI QUICK ACTION -->
-            <div class="absensi-section-title">
-                Presensi Hari Ini
-                <button class="btn-izin-link" onclick="openIzinModal()">+ Ajukan Izin / Sakit</button>
-            </div>
-
-            <div class="absensi-grid">
-                <!-- Absen Masuk Card -->
-                <div class="absen-box">
-                    <div>
-                        <div class="absen-box-header">
-                            <span class="absen-tag masuk">Masuk</span>
-                            <span class="absen-time" id="timeMasuk">--:--</span>
-                        </div>
-                        <div class="absen-title">Presensi Masuk</div>
+            <div class="absen-box">
+                <div>
+                    <div class="absen-box-header">
+                        <span class="absen-tag keluar">Absen Keluar</span>
+                        <span style="font-size: 1.2rem;">🚪</span>
                     </div>
-                    <button id="btnAbsenMasuk" class="btn-absen-act masuk" onclick="handleAbsen('masuk')">
-                        <span>📍</span> Absen Masuk
-                    </button>
+                    <div class="absen-title">Presensi Keluar</div>
+                    <div class="absen-time" id="time-absen-keluar">Belum Absen</div>
                 </div>
-
-                <!-- Absen Keluar Card -->
-                <div class="absen-box">
-                    <div>
-                        <div class="absen-box-header">
-                            <span class="absen-tag keluar">Keluar</span>
-                            <span class="absen-time" id="timeKeluar">--:--</span>
-                        </div>
-                        <div class="absen-title">Presensi Keluar</div>
-                    </div>
-                    <button id="btnAbsenKeluar" class="btn-absen-act keluar" onclick="handleAbsen('keluar')" disabled>
-                        <span>📍</span> Absen Keluar
-                    </button>
-                </div>
-            </div>
-
-            <!-- TABS SWITCH -->
-            <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('jurnalTab', this)">Jurnal Kegiatan</button>
-                <button class="tab-btn" onclick="switchTab('riwayatTab', this)">Riwayat Absensi</button>
-            </div>
-
-            <!-- TAB 1: JURNAL KEGIATAN -->
-            <div id="jurnalTab" class="tab-content active">
-                <div class="section-header">
-                    <h3 class="section-title">Catatan Kegiatan</h3>
-                </div>
-                <div class="journal-list" id="journalListContainer">
-                    <!-- Dynamic Items render here -->
-                </div>
-            </div>
-
-            <!-- TAB 2: RIWAYAT ABSENSI -->
-            <div id="riwayatTab" class="tab-content">
-                <div class="section-header">
-                    <h3 class="section-title">Riwayat Presensi</h3>
-                </div>
-                <div class="journal-list" id="attendanceListContainer">
-                    <!-- Dynamic Attendance render here -->
-                </div>
+                <button class="btn-absen-act keluar" id="btn-absen-keluar" onclick="doAbsen('Keluar')">
+                    Klik Absen Keluar
+                </button>
             </div>
 
         </div>
 
-        <!-- FLOATING ACTION BUTTON (FOR JURNAL) -->
-        <div class="fab-bottom">
-            <button class="btn-fab" onclick="openJurnalModal()">
-                <span>✏️</span> Tulis Jurnal Harian
-            </button>
+        <div id="notice-viewer"></div>
+
+        <!-- TEAM CAROUSEL -->
+        <div class="section-header">
+            <span class="section-title">Pilih Anggota Tim</span>
+        </div>
+        <div class="team-carousel" id="team-list"></div>
+
+        <!-- NAVIGATION TAB -->
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tab-btn-timeline" onclick="switchTab('timeline')">📖 Timeline Kegiatan</button>
+            <button class="tab-btn" id="tab-btn-absen" onclick="switchTab('absen')">📋 Rekap Absensi</button>
         </div>
 
+        <!-- TAB 1: TIMELINE KEGIATAN -->
+        <div id="tab-timeline-container">
+            <div class="search-field">
+                <span style="color: var(--text-muted);">🔍</span>
+                <input type="text" id="search-input" placeholder="Cari kegiatan..." oninput="filterJurnal()">
+            </div>
+            <div class="feed-list" id="feed-container">
+                <div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data kegiatan...</div>
+            </div>
+        </div>
+
+        <!-- TAB 2: TABEL REKAP ABSENSI -->
+<div id="tab-absen-container" style="display: none;">
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Hari, Tanggal</th>
+                    <th>Masuk</th>
+                    <th>Keluar</th>
+                    <th>Status</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th> <!-- Tambahan Kolom Aksi -->
+                </tr>
+            </thead>
+            <tbody id="table-absen-body">
+                <tr><td colspan="7" style="text-align:center;">Memuat data absensi...</td></tr>
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <!-- MODAL JURNAL -->
-    <div class="modal-overlay" id="jurnalModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 class="modal-title">Tambah Jurnal Kegiatan</h3>
-                <button class="btn-close" onclick="closeModal('jurnalModal')">✕</button>
+    </main>
+
+    <!-- FAB JURNAL -->
+    <button class="fab-trigger" id="fab-tambah" onclick="toggleSheet(true)">
+        <span style="font-size: 1.2rem;">+</span>
+        <span>Buat Jurnal</span>
+    </button>
+
+    <!-- MODAL FORM JURNAL -->
+<div id="sheet-modal" class="sheet-overlay">
+    <div class="sheet-content">
+        <div class="sheet-header">
+            <h2>Catat Jurnal Baru</h2>
+            <button class="btn-close" type="button" onclick="toggleSheet(false)">✕</button>
+        </div>
+        <form id="form-jurnal">
+            <div class="field">
+                <label>Tanggal & Waktu</label>
+                <input type="datetime-local" id="tanggal" required>
             </div>
-            <form id="jurnalForm" onsubmit="submitJurnal(event)">
-                <div class="form-group">
-                    <label class="form-label">Kategori Pekerjaan</label>
-                    <select id="jurnalCategory" class="form-control" required>
-                        <option value="">Pilih Kategori</option>
-                        <option value="Networking & Infrastructure">Networking & Infrastructure</option>
-                        <option value="Software & Web Dev">Software & Web Dev</option>
-                        <option value="Hardware & Maintenance">Hardware & Maintenance</option>
-                        <option value="Administration & Support">Administration & Support</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Deskripsi Pekerjaan / Kegiatan</label>
-                    <textarea id="jurnalContent" class="form-control" placeholder="Jelaskan secara rinci kegiatan yang Anda lakukan hari ini..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Lampiran Foto (Opsional)</label>
-                    <div class="file-upload-box" onclick="document.getElementById('jurnalFile').click()">
-                        <span class="upload-label" id="fileUploadLabel">📷 Upload Foto Bukti</span>
-                        <input type="file" id="jurnalFile" accept="image/*" onchange="handleFileSelect(event)">
+            <div class="field">
+                <label>Judul Kegiatan</label>
+                <input type="text" id="judul" placeholder="Contoh: Maintenance Server" required>
+            </div>
+            <div class="field">
+                <label>Nama Kegiatan Singkat</label>
+                <input type="text" id="kegiatan" placeholder="Contoh: Pengecekan Backup Rutin" required>
+            </div>
+            <div class="field">
+                <label>Keterangan Detail</label>
+                <textarea id="keterangan" rows="3" placeholder="Tuliskan rincian tugas..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-simpan">Simpan ke Timeline</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL FORM PRESENSI & IZIN SUSULAN -->
+<div id="izin-modal" class="sheet-overlay">
+    <div class="sheet-content">
+        <div class="sheet-header">
+            <h2>Input Presensi & Izin Susulan</h2>
+            <button class="btn-close" type="button" onclick="toggleIzinModal(false)">✕</button>
+        </div>
+        <form id="form-izin">
+            <div class="field">
+                <label>Tanggal & Waktu Presensi</label>
+                <input type="datetime-local" id="izin-tanggal" required>
+            </div>
+            <div class="field">
+                <label>Status Kehadiran / Jenis Presensi</label>
+                <select id="izin-status" required>
+                    <option value="MASUK">Absen Masuk</option>
+                    <option value="KELUAR">Absen Keluar</option>
+                    <option value="SAKIT">Sakit</option>
+                    <option value="IZIN">Izin</option>
+                    <option value="ALPHA">Alpha</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Alasan / Keterangan (Opsional)</label>
+                <textarea id="izin-alasan" rows="3" placeholder="Contoh: Mengisi presensi susulan tgl 1 Agustus / Demam tinggi..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-simpan-izin">Simpan Presensi</button>
+        </form>
+    </div>
+</div>
+<script>
+    const userEmail = localStorage.getItem('user_email');
+    const userNama = localStorage.getItem('user_nama') || userEmail;
+    const userRole = localStorage.getItem('user_role') || 'user';
+
+    if (!userEmail) { window.location.href = "login.html"; }
+
+    const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
+    const daftarAnggotaBawaan = ["Achmad Darell Yusuf", "Ardan Fahriza", "Firmansyah", "Muhammad Azzam Irransyah", "Revan Aufa Hilal Kamil"];
+
+    let namaAnggotaDilihat = (userRole === 'viewer') ? daftarAnggotaBawaan[0] : userNama;
+    let rawDataAll = [];
+    let listKegiatan = [];
+    let listAbsensi = [];
+
+    document.getElementById('user-display').innerText = userNama;
+    document.getElementById('avatar-initial').innerText = userNama.charAt(0).toUpperCase();
+    document.getElementById('role-display').innerText = (userRole === 'viewer') ? 'Viewer Admin' : 'Siswa PKL';
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+
+    function toggleSheet(show) {
+        const modal = document.getElementById('sheet-modal');
+        if (show) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('tanggal').value = now.toISOString().slice(0, 16);
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    function toggleIzinModal(show) {
+        const modal = document.getElementById('izin-modal');
+        if (show) {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('izin-tanggal').value = now.toISOString().slice(0, 16);
+            modal.classList.add('active');
+        } else {
+            modal.classList.remove('active');
+        }
+    }
+
+    function switchTab(tab) {
+        const btnTimeline = document.getElementById('tab-btn-timeline');
+        const btnAbsen = document.getElementById('tab-btn-absen');
+        const viewTimeline = document.getElementById('tab-timeline-container');
+        const viewAbsen = document.getElementById('tab-absen-container');
+
+        if (tab === 'timeline') {
+            btnTimeline.classList.add('active');
+            btnAbsen.classList.remove('active');
+            viewTimeline.style.display = 'block';
+            viewAbsen.style.display = 'none';
+        } else {
+            btnAbsen.classList.add('active');
+            btnTimeline.classList.remove('active');
+            viewTimeline.style.display = 'none';
+            viewAbsen.style.display = 'block';
+        }
+    }
+
+    function renderTeamList() {
+        const container = document.getElementById('team-list');
+        if (!container) return;
+        container.innerHTML = '';
+        let listAll = [...daftarAnggotaBawaan];
+        if (userRole !== 'viewer' && !listAll.includes(userNama)) { listAll.push(userNama); }
+
+        listAll.forEach(nama => {
+            const card = document.createElement('div');
+            card.className = `team-card ${nama === namaAnggotaDilihat ? 'active' : ''}`;
+            const initials = nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            card.innerHTML = `<div class="team-avatar">${initials}</div><div class="team-meta"><div class="name">${nama}</div></div>`;
+            card.onclick = () => pilihAnggota(nama);
+            container.appendChild(card);
+        });
+    }
+
+    function pilihAnggota(nama) {
+        namaAnggotaDilihat = nama;
+        const heroNama = document.getElementById('hero-nama');
+        if (heroNama) heroNama.innerText = nama;
+        
+        renderTeamList();
+
+        const fabBtn = document.getElementById('fab-tambah');
+        const absensiCard = document.getElementById('area-absensi');
+        const absensiTitle = document.getElementById('title-absensi-section');
+        const noticeViewer = document.getElementById('notice-viewer');
+
+        if (userRole === 'viewer') {
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Pembimbing (Viewer)</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
+        } else if (namaAnggotaDilihat === userNama) {
+            if (fabBtn) fabBtn.style.display = 'flex';
+            if (absensiCard) absensiCard.style.display = 'grid';
+            if (absensiTitle) absensiTitle.style.display = 'flex';
+            if (noticeViewer) noticeViewer.innerHTML = '';
+        } else {
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
+        }
+
+        muatDataJurnal();
+    }
+
+    function formatTanggalWaktu(rawDate) {
+        if (!rawDate) return '-';
+        const dateObj = new Date(rawDate);
+        if (isNaN(dateObj.getTime())) return rawDate;
+        return dateObj.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+    }
+
+    function formatTanggalOnly(rawDate) {
+        if (!rawDate) return '-';
+        const dateObj = new Date(rawDate);
+        if (isNaN(dateObj.getTime())) return rawDate;
+        return dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    async function muatDataJurnal() {
+        const feed = document.getElementById('feed-container');
+        if (feed) feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data...</div>';
+
+        try {
+            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
+            rawDataAll = await response.json();
+
+            listKegiatan = rawDataAll.filter(item => !(item.judul && item.judul.startsWith("ABSENSI:")));
+            listAbsensi = rawDataAll.filter(item => item.judul && item.judul.startsWith("ABSENSI:"));
+
+            listKegiatan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            const statJurnalElem = document.getElementById('stat-total-jurnal');
+            if (statJurnalElem) statJurnalElem.innerText = listKegiatan.length;
+            
+            renderTimeline(listKegiatan);
+            renderTabelAbsensi(listAbsensi);
+            muatStatusAbsensi();
+            kalkulasiStatistik();
+        } catch (error) {
+            console.error(error);
+            if (feed) feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
+        }
+    }
+
+    // FUNGSI HAPUS DATA (DELETE)
+    async function hapusData(id, deskripsi) {
+        if (userRole === 'viewer') {
+            alert("Akses ditolak: Viewer/Admin tidak dapat menghapus data.");
+            return;
+        }
+
+        if (namaAnggotaDilihat !== userNama) {
+            alert("Akses ditolak: Anda hanya dapat menghapus data milik Anda sendiri.");
+            return;
+        }
+
+        if (confirm(`Apakah Anda yakin ingin menghapus data "${deskripsi}"?`)) {
+            try {
+                const response = await fetch(`${API_URL}?id=${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Data berhasil dihapus!');
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menghapus data.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan jaringan saat menghapus data.');
+            }
+        }
+    }
+
+    function renderTimeline(data) {
+        const feed = document.getElementById('feed-container');
+        if (!feed) return;
+        feed.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            feed.innerHTML = `
+                <div style="text-align:center; padding: 40px 20px; background: white; border-radius: var(--radius-xl); border: 1px solid var(--border);">
+                    <p style="font-weight: 700; color: var(--text-main);">Belum Ada Kegiatan</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Aktivitas jurnal yang kamu simpan akan muncul di sini.</p>
+                </div>`;
+            return;
+        }
+
+        data.forEach(row => {
+            const card = document.createElement('article');
+            card.className = 'feed-card';
+            
+            // Tampilkan tombol hapus jika milik sendiri & bukan viewer
+            const deleteBtnHtml = (userRole !== 'viewer' && namaAnggotaDilihat === userNama && row._id)
+                ? `<button type="button" onclick="hapusData('${row._id}', '${row.judul || 'Kegiatan'}')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-left: auto;">🗑️ Hapus</button>`
+                : '';
+
+            card.innerHTML = `
+                <div class="feed-dot"></div>
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div class="card-date">🕒 ${formatTanggalWaktu(row.tanggal)}</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="cat-pill">KEGIATAN</span>
+                        ${deleteBtnHtml}
                     </div>
                 </div>
-                <button type="submit" class="btn-submit">Simpan & Kirim Jurnal</button>
-            </form>
-        </div>
-    </div>
+                <h3 class="feed-title">${row.judul || '-'}</h3>
+                <div class="feed-sub">${row.kegiatan}</div>
+                <p class="feed-body">${row.keterangan || '-'}</p>
+            `;
+            feed.appendChild(card);
+        });
+    }
 
-    <!-- MODAL IZIN / SAKIT -->
-    <div class="modal-overlay" id="izinModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 class="modal-title">Pengajuan Izin / Sakit</h3>
-                <button class="btn-close" onclick="closeModal('izinModal')">✕</button>
-            </div>
-            <form id="izinForm" onsubmit="submitIzin(event)">
-                <div class="form-group">
-                    <label class="form-label">Jenis Permohonan</label>
-                    <select id="izinType" class="form-control" required>
-                        <option value="Sakit">Sakit</option>
-                        <option value="Izin">Izin Keperluan Khusus</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Alasan & Keterangan</label>
-                    <textarea id="izinReason" class="form-control" placeholder="Tuliskan alasan tidak dapat hadir..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Surat Dokter / Bukti Pendukung</label>
-                    <div class="file-upload-box" onclick="document.getElementById('izinFile').click()">
-                        <span class="upload-label" id="fileIzinLabel">📄 Upload Surat Bukti</span>
-                        <input type="file" id="izinFile" accept="image/*,.pdf">
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit">Kirim Pengajuan</button>
-            </form>
-        </div>
-    </div>
+    function renderTabelAbsensi(dataAbsen) {
+        const tbody = document.getElementById('table-absen-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
-    <!-- APP SCRIPT (LOCALSTORAGE STORAGE SYSTEM) -->
-    <script>
-        // DATA STATE
-        const STORAGE_KEY_USER = 'enterprise_pkl_user';
-        const STORAGE_KEY_ATTENDANCE = 'enterprise_pkl_attendance';
-        const STORAGE_KEY_JOURNALS = 'enterprise_pkl_journals';
+        if (!dataAbsen || dataAbsen.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
+            return;
+        }
 
-        let currentUser = null;
-        let attendanceData = [];
-        let journalData = [];
+        const grouped = {};
+        dataAbsen.forEach(item => {
+            const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
+            if (!grouped[tglKey]) {
+                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal, isLate: false, lateMinutes: 0, ids: [] };
+            }
 
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            loadInitialData();
-            checkAuth();
+            if (item._id) grouped[tglKey].ids.push(item._id);
+
+            const dObj = new Date(item.tanggal);
+            const timeStr = dObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            
+            if (item.judul.includes("MASUK")) {
+                grouped[tglKey].masuk = timeStr + ' WIB';
+
+                const jam = dObj.getHours();
+                const menit = dObj.getMinutes();
+                if (jam > 9 || (jam === 9 && menit > 0)) {
+                    grouped[tglKey].isLate = true;
+                    grouped[tglKey].lateMinutes = ((jam - 9) * 60) + menit;
+                }
+            } else if (item.judul.includes("KELUAR")) {
+                grouped[tglKey].keluar = timeStr + ' WIB';
+            } else if (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA")) {
+                const parts = item.judul.split(":");
+                const st = parts[1] ? parts[1].trim() : "Sakit";
+                
+                grouped[tglKey].status = st.charAt(0).toUpperCase() + st.slice(1).toLowerCase();
+                grouped[tglKey].masuk = '-';
+                grouped[tglKey].keluar = '-';
+                grouped[tglKey].keterangan = item.keterangan || 'Tidak ada keterangan';
+            }
         });
 
-        function loadInitialData() {
-            attendanceData = JSON.parse(localStorage.getItem(STORAGE_KEY_ATTENDANCE)) || [
-                { id: 1, date: '10 Aug 2026', type: 'Masuk', timeIn: '07:55', timeOut: '16:05', status: 'Hadir' },
-                { id: 2, date: '09 Aug 2026', type: 'Masuk', timeIn: '08:00', timeOut: '16:00', status: 'Hadir' }
-            ];
-            journalData = JSON.parse(localStorage.getItem(STORAGE_KEY_JOURNALS)) || [
-                { id: 1, date: '10 Aug 2026', category: 'Networking & Infrastructure', content: 'Konfigurasi Mikrotik Router Board RB951 UI, setup VLAN Trunking ke Switch managed Cisco.', status: 'Disetujui', file: null },
-                { id: 2, date: '09 Aug 2026', category: 'Software & Web Dev', content: 'Maintenance database MySQL, optimasi query indexing untuk portal e-office.', status: 'Disetujui', file: null }
-            ];
-        }
+        const sortedKeys = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
 
-        // AUTH SYSTEM
-        function checkAuth() {
-            const savedUser = localStorage.getItem(STORAGE_KEY_USER);
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                document.getElementById('loginView').style.display = 'none';
-                document.getElementById('appView').style.display = 'block';
-                setupUserUI();
-                renderAll();
-            } else {
-                document.getElementById('loginView').style.display = 'flex';
-                document.getElementById('appView').style.display = 'none';
-            }
-        }
+        let no = 1;
+        sortedKeys.forEach(key => {
+            const rowData = grouped[key];
+            const tr = document.createElement('tr');
 
-        function handleLogin(e) {
-            e.preventDefault();
-            const id = document.getElementById('loginId').value;
-            currentUser = { name: 'Ahmad Subagja', id: id, role: 'Siswa PKL' };
-            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(currentUser));
-            checkAuth();
-        }
-
-        function handleLogout() {
-            localStorage.removeItem(STORAGE_KEY_USER);
-            checkAuth();
-        }
-
-        function setupUserUI() {
-            document.getElementById('userName').innerText = currentUser.name;
-            document.getElementById('userAvatar').innerText = currentUser.name.charAt(0);
-        }
-
-        // RENDERING
-        function renderAll() {
-            renderStats();
-            renderJournals();
-            renderAttendance();
-            checkTodayAttendance();
-        }
-
-        function renderStats() {
-            const hadir = attendanceData.filter(a => a.status === 'Hadir').length;
-            const izin = attendanceData.filter(a => a.status === 'Izin' || a.status === 'Sakit').length;
-            document.getElementById('statHadir').innerText = hadir;
-            document.getElementById('statIzin').innerText = izin;
-            document.getElementById('statJurnal').innerText = journalData.length;
-        }
-
-        function renderJournals() {
-            const container = document.getElementById('journalListContainer');
-            if (journalData.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada catatan jurnal.</div>`;
-                return;
+            let statusHtml = `<span class="badge-status ${rowData.status}">${rowData.status}</span>`;
+            if (rowData.isLate) {
+                statusHtml += ` <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-left: 4px;">Terlambat (${rowData.lateMinutes} mnt)</span>`;
             }
 
-            container.innerHTML = journalData.map(j => {
-                let statusClass = 'status-pending';
-                if (j.status === 'Disetujui') statusClass = 'status-approved';
-                if (j.status === 'Ditolak') statusClass = 'status-rejected';
-
-                return `
-                    <div class="journal-card">
-                        <div class="journal-header">
-                            <span class="journal-date">${j.date}</span>
-                            <span class="journal-category">${j.category}</span>
-                        </div>
-                        <div class="journal-body">${j.content}</div>
-                        ${j.file ? `<div style="margin-bottom:10px;"><img src="${j.file}" style="max-width:100%; max-height:150px; border-radius:8px;"></div>` : ''}
-                        <div class="journal-footer">
-                            <div class="status-badge ${statusClass}">
-                                <span class="status-dot"></span> Status: ${j.status}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderAttendance() {
-            const container = document.getElementById('attendanceListContainer');
-            if (attendanceData.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada data absensi.</div>`;
-                return;
+            // Tombol Hapus Absen Hari Tersebut
+            let deleteBtnHtml = '-';
+            if (userRole !== 'viewer' && namaAnggotaDilihat === userNama && rowData.ids.length > 0) {
+                const idsParam = JSON.stringify(rowData.ids).replace(/"/g, '&quot;');
+                deleteBtnHtml = `<button type="button" onclick="hapusMultipleAbsen('${key}', ${idsParam})" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">🗑️ Hapus</button>`;
             }
 
-            container.innerHTML = attendanceData.map(a => `
-                <div class="journal-card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-weight:800; font-size:0.9rem;">${a.date}</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
-                            ${a.status === 'Hadir' ? `Masuk: ${a.timeIn || '-'} | Keluar: ${a.timeOut || '-'}` : `Keterangan: ${a.status}`}
-                        </div>
-                    </div>
-                    <div>
-                        <span class="journal-category" style="background:${a.status === 'Hadir' ? '#dcfce7' : '#fef3c7'}; color:${a.status === 'Hadir' ? '#15803d' : '#b45309'};">
-                            ${a.status}
-                        </span>
-                    </div>
-                </div>
-            `).join('');
-        }
+            tr.innerHTML = `
+                <td>${no++}</td>
+                <td>${formatTanggalOnly(rowData.rawDate)}</td>
+                <td style="color: ${rowData.isLate ? '#ef4444' : '#16a34a'}; font-weight: 700;">${rowData.masuk}</td>
+                <td style="color: #0284c7; font-weight: 700;">${rowData.keluar}</td>
+                <td>${statusHtml}</td>
+                <td style="color: var(--text-muted);">${rowData.keterangan}</td>
+                <td>${deleteBtnHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
-        // ABSENSI LOGIC
-        function getTodayString() {
-            const today = new Date();
-            const options = { day: '2-digit', month: 'short', year: 'numeric' };
-            return today.toLocaleDateString('en-GB', options);
-        }
-
-        function checkTodayAttendance() {
-            const todayStr = getTodayString();
-            const todayRecord = attendanceData.find(a => a.date === todayStr);
-
-            const btnMasuk = document.getElementById('btnAbsenMasuk');
-            const btnKeluar = document.getElementById('btnAbsenKeluar');
-            const timeMasuk = document.getElementById('timeMasuk');
-            const timeKeluar = document.getElementById('timeKeluar');
-
-            if (todayRecord) {
-                if (todayRecord.timeIn) {
-                    timeMasuk.innerText = todayRecord.timeIn;
-                    btnMasuk.disabled = true;
-                    btnMasuk.innerText = 'Sudah Absen';
-                    btnKeluar.disabled = false;
+    async function hapusMultipleAbsen(tglStr, ids) {
+        if (confirm(`Apakah Anda yakin ingin menghapus data presensi tanggal ${formatTanggalOnly(tglStr)}?`)) {
+            try {
+                for (const id of ids) {
+                    await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
                 }
-                if (todayRecord.timeOut) {
-                    timeKeluar.innerText = todayRecord.timeOut;
-                    btnKeluar.disabled = true;
-                    btnKeluar.innerText = 'Sudah Selesai';
-                }
-            } else {
-                btnMasuk.disabled = false;
-                btnKeluar.disabled = true;
+                alert('Data presensi berhasil dihapus!');
+                muatDataJurnal();
+            } catch (err) {
+                console.error(err);
+                alert('Gagal menghapus sebagian atau seluruh data presensi.');
             }
         }
+    }
 
-        function handleAbsen(type) {
+    function filterJurnal() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const filtered = listKegiatan.filter(item => {
+            const j = (item.judul || '').toLowerCase();
+            const k = (item.kegiatan || '').toLowerCase();
+            const ket = (item.keterangan || '').toLowerCase();
+            return j.includes(query) || k.includes(query) || ket.includes(query);
+        });
+        renderTimeline(filtered);
+    }
+
+    async function doAbsen(tipe) {
+        if (confirm(`Apakah Anda yakin ingin melakukan Absen ${tipe}?`)) {
             const now = new Date();
-            const timeStr = now.toTimeString().substring(0, 5);
-            const todayStr = getTodayString();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            
+            const payload = {
+                tanggal: now.toISOString(),
+                judul: `ABSENSI: ${tipe.toUpperCase()}`,
+                kegiatan: `Melakukan Absen ${tipe} PKL`,
+                keterangan: `Presensi ${tipe} tercatat jam ${timeString} WIB`,
+                nama: userNama
+            };
 
-            let todayRecord = attendanceData.find(a => a.date === todayStr);
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (type === 'masuk') {
-                if (!todayRecord) {
-                    todayRecord = { id: Date.now(), date: todayStr, type: 'Masuk', timeIn: timeStr, timeOut: null, status: 'Hadir' };
-                    attendanceData.unshift(todayRecord);
+                if (response.ok) {
+                    alert(`Absen ${tipe} berhasil dicatat!`);
+                    muatDataJurnal();
                 } else {
-                    todayRecord.timeIn = timeStr;
+                    alert('Gagal melakukan absensi.');
                 }
-                alert(`Absen masuk berhasil pada jam ${timeStr}`);
-            } else if (type === 'keluar') {
-                if (todayRecord) {
-                    todayRecord.timeOut = timeStr;
-                    alert(`Absen keluar berhasil pada jam ${timeStr}`);
-                }
-            }
-
-            localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(attendanceData));
-            renderAll();
-        }
-
-        // TABS
-        function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btnElement.classList.add('active');
-        }
-
-        // MODALS & FORM HANDLERS
-        function openJurnalModal() { document.getElementById('jurnalModal').classList.add('active'); }
-        function openIzinModal() { document.getElementById('izinModal').classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        let tempBase64Image = null;
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('fileUploadLabel').innerText = `📄 ${file.name}`;
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    tempBase64Image = evt.target.result;
-                };
-                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan jaringan.');
             }
         }
+    }
 
-        function submitJurnal(e) {
-            e.preventDefault();
-            const cat = document.getElementById('jurnalCategory').value;
-            const content = document.getElementById('jurnalContent').value;
+    function muatStatusAbsensi() {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        
+        const absenMasukToday = listAbsensi.find(item => 
+            item.tanggal && item.tanggal.slice(0, 10) === todayStr && item.judul === "ABSENSI: MASUK"
+        );
+        const absenKeluarToday = listAbsensi.find(item => 
+            item.tanggal && item.tanggal.slice(0, 10) === todayStr && item.judul === "ABSENSI: KELUAR"
+        );
+        const absenKhususToday = listAbsensi.find(item => 
+            item.tanggal && item.tanggal.slice(0, 10) === todayStr && (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA"))
+        );
 
-            const newJurnal = {
-                id: Date.now(),
-                date: getTodayString(),
-                category: cat,
-                content: content,
-                status: 'Menunggu',
-                file: tempBase64Image
-            };
+        const btnMasuk = document.getElementById('btn-absen-masuk');
+        const timeMasuk = document.getElementById('time-absen-masuk');
+        const statMasuk = document.getElementById('stat-jam-masuk');
 
-            journalData.unshift(newJurnal);
-            localStorage.setItem(STORAGE_KEY_JOURNALS, JSON.stringify(journalData));
+        const btnKeluar = document.getElementById('btn-absen-keluar');
+        const timeKeluar = document.getElementById('time-absen-keluar');
+        const statKeluar = document.getElementById('stat-jam-keluar');
 
-            // Reset & Close
-            document.getElementById('jurnalForm').reset();
-            document.getElementById('fileUploadLabel').innerText = '📷 Upload Foto Bukti';
-            tempBase64Image = null;
-            closeModal('jurnalModal');
-            renderAll();
-            alert('Jurnal harian berhasil disimpan!');
+        if (!btnMasuk || !btnKeluar) return;
+
+        if (absenKhususToday) {
+            const statusStr = absenKhususToday.judul.replace("ABSENSI: ", "");
+            timeMasuk.innerText = statusStr;
+            statMasuk.innerText = statusStr;
+            btnMasuk.disabled = true;
+            btnMasuk.innerText = `Siswa ${statusStr}`;
+
+            timeKeluar.innerText = statusStr;
+            statKeluar.innerText = statusStr;
+            btnKeluar.disabled = true;
+            btnKeluar.innerText = `Siswa ${statusStr}`;
+            return;
         }
 
-        function submitIzin(e) {
-            e.preventDefault();
-            const type = document.getElementById('izinType').value;
-            const reason = document.getElementById('izinReason').value;
+        if (absenMasukToday) {
+            const d = new Date(absenMasukToday.tanggal);
+            const formattedTime = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            timeMasuk.innerText = `Sudah Absen (${formattedTime} WIB)`;
+            statMasuk.innerText = formattedTime;
+            btnMasuk.disabled = true;
+            btnMasuk.innerText = "✓ Sudah Masuk";
+        } else {
+            timeMasuk.innerText = "Belum Absen";
+            statMasuk.innerText = "--:--";
+            btnMasuk.disabled = false;
+            btnMasuk.innerText = "Klik Absen Masuk";
+        }
 
-            const newAttendance = {
-                id: Date.now(),
-                date: getTodayString(),
-                type: type,
-                timeIn: null,
-                timeOut: null,
-                status: type,
-                reason: reason
+        if (absenKeluarToday) {
+            const d = new Date(absenKeluarToday.tanggal);
+            const formattedTime = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+            timeKeluar.innerText = `Sudah Absen (${formattedTime} WIB)`;
+            statKeluar.innerText = formattedTime;
+            btnKeluar.disabled = true;
+            btnKeluar.innerText = "✓ Sudah Keluar";
+        } else {
+            timeKeluar.innerText = "Belum Absen";
+            statKeluar.innerText = "--:--";
+            btnKeluar.disabled = false;
+            btnKeluar.innerText = "Klik Absen Keluar";
+        }
+    }
+
+    // SUBMIT JURNAL KEGIATAN
+    const formJurnal = document.getElementById('form-jurnal');
+    if (formJurnal) {
+        formJurnal.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
+
+            const payload = {
+                tanggal: document.getElementById('tanggal').value,
+                judul: document.getElementById('judul').value,
+                kegiatan: document.getElementById('kegiatan').value,
+                keterangan: document.getElementById('keterangan').value,
+                nama: userNama
             };
 
-            attendanceData.unshift(newAttendance);
-            localStorage.setItem(STORAGE_KEY_ATTENDANCE, JSON.stringify(attendanceData));
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            document.getElementById('izinForm').reset();
-            closeModal('izinModal');
-            renderAll();
-            alert('Pengajuan izin berhasil dikirim!');
+                if (response.ok) {
+                    alert('Jurnal berhasil ditambahkan!');
+                    document.getElementById('judul').value = '';
+                    document.getElementById('kegiatan').value = '';
+                    document.getElementById('keterangan').value = '';
+                    toggleSheet(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan jurnal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan ke Timeline";
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // SUBMIT FORM PRESENSI / IZIN SUSULAN
+    const formIzin = document.getElementById('form-izin');
+    if (formIzin) {
+        formIzin.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan-izin');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
+
+            const tglInput = document.getElementById('izin-tanggal').value;
+            const status = document.getElementById('izin-status').value;
+            const alasan = document.getElementById('izin-alasan').value || `Absensi ${status}`;
+
+            const selectedDate = new Date(tglInput);
+            const timeStr = selectedDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+
+            const payload = {
+                tanggal: selectedDate.toISOString(),
+                judul: `ABSENSI: ${status.toUpperCase()}`,
+                kegiatan: status === 'MASUK' || status === 'KELUAR' ? `Melakukan Absen ${status}` : `Pengajuan Status ${status}`,
+                keterangan: status === 'MASUK' || status === 'KELUAR' ? `Presensi ${status} tercatat jam ${timeStr} WIB (${alasan})` : alasan,
+                nama: userNama
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert(`Data presensi tanggal ${formatTanggalOnly(tglInput)} berhasil disimpan!`);
+                    document.getElementById('izin-alasan').value = '';
+                    toggleIzinModal(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan presensi.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan Presensi";
+                btn.disabled = false;
+            }
+        });
+    }
+
+    function kalkulasiStatistik(dataKustom) {
+        const dataHadir = dataKustom || listAbsensi;
+        const dataJurnal = dataKustom || listKegiatan;
+
+        const totalHadir = dataHadir.filter(d => d.judul && d.judul.includes('MASUK')).length;
+        const totalIzin = dataHadir.filter(d => d.judul && (d.judul.includes('IZIN') || d.judul.includes('SAKIT'))).length;
+        const totalJurnal = dataJurnal.length;
+
+        if (document.getElementById('stat-hadir')) document.getElementById('stat-hadir').innerText = totalHadir;
+        if (document.getElementById('stat-izin')) document.getElementById('stat-izin').innerText = totalIzin;
+        if (document.getElementById('stat-jurnal')) document.getElementById('stat-jurnal').innerText = totalJurnal;
+    }
+
+    function filterRiwayat() {
+        const filterNama = document.getElementById('filter-nama') ? document.getElementById('filter-nama').value : 'SEMUA';
+        const filterTanggal = document.getElementById('filter-tanggal') ? document.getElementById('filter-tanggal').value : '';
+
+        if (filterNama !== 'SEMUA' && filterNama !== namaAnggotaDilihat) {
+            pilihAnggota(filterNama);
+            return;
         }
-    </script>
+
+        let hasilKegiatan = listKegiatan;
+        let hasilAbsensi = listAbsensi;
+
+        if (filterTanggal) {
+            hasilKegiatan = hasilKegiatan.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+            hasilAbsensi = hasilAbsensi.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+        }
+
+        renderTimeline(hasilKegiatan);
+        renderTabelAbsensi(hasilAbsensi);
+        kalkulasiStatistik(hasilAbsensi);
+    }
+
+    function resetFilter() {
+        if (document.getElementById('filter-nama')) document.getElementById('filter-nama').value = 'SEMUA';
+        if (document.getElementById('filter-tanggal')) document.getElementById('filter-tanggal').value = '';
+        renderTimeline(listKegiatan);
+        renderTabelAbsensi(listAbsensi);
+        kalkulasiStatistik();
+    }
+
+    renderTeamList();
+    pilihAnggota(namaAnggotaDilihat);
+
+    document.addEventListener("DOMContentLoaded", function() {
+        if (userRole === 'viewer' && document.getElementById('filter-nama')) {
+            document.getElementById('filter-nama').style.display = 'block';
+        }
+    });
+    // RENDER TIMELINE KEGIATAN
+function renderTimeline(data) {
+    const feed = document.getElementById('feed-container');
+    if (!feed) return;
+    feed.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        feed.innerHTML = `
+            <div style="text-align:center; padding: 40px 20px; background: white; border-radius: var(--radius-xl); border: 1px solid var(--border);">
+                <p style="font-weight: 700; color: var(--text-main);">Belum Ada Kegiatan</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Aktivitas jurnal yang kamu simpan akan muncul di sini.</p>
+            </div>`;
+        return;
+    }
+
+    data.forEach(row => {
+        const card = document.createElement('article');
+        card.className = 'feed-card';
+        
+        // Tombol hapus langsung ditampilkan jika ada ID
+        const deleteBtnHtml = row._id 
+            ? `<button type="button" class="btn-delete" onclick="hapusData('${row._id}', '${row.judul || 'Kegiatan'}')">🗑️ Hapus</button>`
+            : '';
+
+        card.innerHTML = `
+            <div class="feed-dot"></div>
+            <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <div class="card-date">🕒 ${formatTanggalWaktu(row.tanggal)}</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="cat-pill">KEGIATAN</span>
+                    ${deleteBtnHtml}
+                </div>
+            </div>
+            <h3 class="feed-title">${row.judul || '-'}</h3>
+            <div class="feed-sub">${row.kegiatan || '-'}</div>
+            <p class="feed-body">${row.keterangan || '-'}</p>
+        `;
+        feed.appendChild(card);
+    });
+}
+
+// RENDER TABEL ABSENSI
+function renderTabelAbsensi(dataAbsen) {
+    const tbody = document.getElementById('table-absen-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!dataAbsen || dataAbsen.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
+        return;
+    }
+
+    const grouped = {};
+    dataAbsen.forEach(item => {
+        const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
+        if (!grouped[tglKey]) {
+            grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal, isLate: false, lateMinutes: 0, ids: [] };
+        }
+
+        if (item._id) grouped[tglKey].ids.push(item._id);
+
+        const dObj = new Date(item.tanggal);
+        const timeStr = dObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        
+        if (item.judul.includes("MASUK")) {
+            grouped[tglKey].masuk = timeStr + ' WIB';
+            const jam = dObj.getHours();
+            const menit = dObj.getMinutes();
+            if (jam > 9 || (jam === 9 && menit > 0)) {
+                grouped[tglKey].isLate = true;
+                grouped[tglKey].lateMinutes = ((jam - 9) * 60) + menit;
+            }
+        } else if (item.judul.includes("KELUAR")) {
+            grouped[tglKey].keluar = timeStr + ' WIB';
+        } else if (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA")) {
+            const parts = item.judul.split(":");
+            const st = parts[1] ? parts[1].trim() : "Sakit";
+            grouped[tglKey].status = st.charAt(0).toUpperCase() + st.slice(1).toLowerCase();
+            grouped[tglKey].masuk = '-';
+            grouped[tglKey].keluar = '-';
+            grouped[tglKey].keterangan = item.keterangan || 'Tidak ada keterangan';
+        }
+    });
+
+    const sortedKeys = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
+
+    let no = 1;
+    sortedKeys.forEach(key => {
+        const rowData = grouped[key];
+        const tr = document.createElement('tr');
+
+        let statusHtml = `<span class="badge-status ${rowData.status}">${rowData.status}</span>`;
+        if (rowData.isLate) {
+            statusHtml += ` <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-left: 4px;">Terlambat (${rowData.lateMinutes} mnt)</span>`;
+        }
+
+        // Tombol hapus presensi pada tanggal tersebut
+        let deleteBtnHtml = '-';
+        if (rowData.ids.length > 0) {
+            const idsParam = JSON.stringify(rowData.ids).replace(/"/g, '&quot;');
+            deleteBtnHtml = `<button type="button" class="btn-delete" onclick="hapusMultipleAbsen('${key}', ${idsParam})">🗑️ Hapus</button>`;
+        }
+
+        tr.innerHTML = `
+            <td>${no++}</td>
+            <td>${formatTanggalOnly(rowData.rawDate)}</td>
+            <td style="color: ${rowData.isLate ? '#ef4444' : '#16a34a'}; font-weight: 700;">${rowData.masuk}</td>
+            <td style="color: #0284c7; font-weight: 700;">${rowData.keluar}</td>
+            <td>${statusHtml}</td>
+            <td style="color: var(--text-muted);">${rowData.keterangan}</td>
+            <td>${deleteBtnHtml}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+</script>
+
 </body>
 </html>
