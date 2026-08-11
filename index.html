@@ -107,8 +107,8 @@
         .form button:hover { background: #1d4ed8; }
 
         .notice-box {
-            background: #fef3c7;
-            color: #92400e;
+            background: #e0f2fe;
+            color: #0369a1;
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 20px;
@@ -158,7 +158,6 @@
                 font-size: 0.9rem;
             }
 
-            /* Label Otomatis Tanpa Nomor */
             td::before {
                 font-weight: bold;
                 color: #2563eb;
@@ -206,20 +205,12 @@
             </div>
         </header>
 
-        <h1 id="judul-anggota" style="margin-top: 10px;">Kegiatan Saya</h1>
+        <h1 id="judul-anggota" style="margin-top: 10px;">Kegiatan</h1>
 
         <!-- AREA FORM INPUT -->
-        <div id="area-form">
-            <form id="form-jurnal" class="form">
-                <input type="datetime-local" id="tanggal" required>
-                <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
-                <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
-                <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
-                <button type="submit" id="btn-simpan">Simpan Jurnal</button>
-            </form>
-        </div>
+        <div id="area-form"></div>
 
-        <!-- TABLE DATA TANPA KOLOM NOMOR -->
+        <!-- TABLE DATA -->
         <div class="table-responsive">
             <table>
                 <thead>
@@ -241,14 +232,14 @@
 <script>
     const userEmail = localStorage.getItem('user_email');
     const userNama = localStorage.getItem('user_nama') || userEmail;
+    const userRole = localStorage.getItem('user_role') || 'user';
 
     if (!userEmail) {
         window.location.href = "login.html";
     }
-    document.getElementById('user-display').innerText = `${userNama} (${userEmail})`;
+    document.getElementById('user-display').innerText = `${userNama}`;
 
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
-    let namaAnggotaDilihat = userNama;
 
     const daftarAnggotaBawaan = [
         "Achmad Darell Yusuf",
@@ -258,6 +249,8 @@
         "Revan Aufa Hilal Kamil"
     ];
 
+    let namaAnggotaDilihat = (userRole === 'viewer') ? daftarAnggotaBawaan[0] : userNama;
+
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
         document.getElementById('sidebar-overlay').classList.toggle('active');
@@ -266,6 +259,7 @@
     function logout() {
         localStorage.removeItem('user_email');
         localStorage.removeItem('user_nama');
+        localStorage.removeItem('user_role');
         window.location.href = "login.html";
     }
 
@@ -274,7 +268,7 @@
         sidebarContainer.innerHTML = '';
 
         let daftarAll = [...daftarAnggotaBawaan];
-        if (!daftarAll.includes(userNama)) {
+        if (userRole !== 'viewer' && !daftarAll.includes(userNama)) {
             daftarAll.push(userNama);
         }
 
@@ -296,7 +290,14 @@
         renderSidebar();
 
         const areaForm = document.getElementById('area-form');
-        if (namaAnggotaDilihat === userNama) {
+
+        if (userRole === 'viewer') {
+            areaForm.innerHTML = `
+                <div class="notice-box">
+                    👁️ <b>Mode Admin / Viewer</b>: Anda sedang memantau jurnal <b>${nama}</b>.
+                </div>
+            `;
+        } else if (namaAnggotaDilihat === userNama) {
             areaForm.innerHTML = `
                 <form id="form-jurnal" class="form">
                     <input type="datetime-local" id="tanggal" required>
@@ -309,7 +310,7 @@
             pasangListenerForm();
         } else {
             areaForm.innerHTML = `
-                <div class="notice-box">
+                <div class="notice-box" style="background:#fef3c7; color:#92400e;">
                     🔒 Anda sedang melihat jurnal <b>${nama}</b>. Anda tidak dapat menginput data ke akun orang lain.
                 </div>
             `;
@@ -318,7 +319,6 @@
         muatDataJurnal();
     }
 
-    // Format tanggal & waktu rapi
     function formatTanggalWaktu(rawDate) {
         if (!rawDate) return '-';
         const dateObj = new Date(rawDate);
@@ -411,7 +411,7 @@
     }
 
     renderSidebar();
-    pilihAnggota(userNama);
+    pilihAnggota(namaAnggotaDilihat);
 </script>
 
 </body>
