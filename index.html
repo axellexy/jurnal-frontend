@@ -11,7 +11,7 @@
 
         /* SIDEBAR */
         .sidebar {
-            width: 240px;
+            width: 260px;
             background: #0f172a;
             color: white;
             padding: 20px;
@@ -19,19 +19,30 @@
             flex-direction: column;
         }
         .sidebar h2 { margin-bottom: 5px; font-size: 1.2rem; }
-        .sidebar p { font-size: 0.85rem; color: #94a3b8; word-break: break-all; margin-bottom: 25px; }
-        .btn-logout {
-            background: #dc2626;
+        .sidebar .user-info { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+        .sidebar button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
             color: white;
             border: none;
             padding: 12px;
+            margin-bottom: 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: auto;
-            width: 100%;
+            font-size: 0.9rem;
+            transition: 0.2s;
         }
-        .btn-logout:hover { background: #b91c1c; }
+        .sidebar button.active,
+        .sidebar button:hover { background: #2563eb; }
+        .btn-logout {
+            background: #dc2626 !important;
+            margin-top: auto;
+            text-align: center !important;
+            font-weight: bold;
+        }
+        .btn-logout:hover { background: #b91c1c !important; }
 
         /* CONTENT */
         .content { flex: 1; padding: 30px; background: white; }
@@ -63,6 +74,16 @@
         }
         .form button:hover { background: #1d4ed8; }
 
+        .notice-box {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            max-width: 500px;
+        }
+
         /* TABLE */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
@@ -74,8 +95,15 @@
 <div class="container">
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <h2>Jurnal PKL</h2>
-        <p id="user-display">Loading user...</p>
+        <h2>JURNAL PKL</h2>
+        <div class="user-info">Login sebagai:<br><b id="user-display">-</b></div>
+
+        <small style="color:#94a3b8; margin-bottom: 8px; display:block;">Pilih Anggota (Lihat Data):</small>
+        <button id="btn-A" class="active" onclick="pilihAnggota('A')">Achmad Darell Yusuf</button>
+        <button id="btn-B" onclick="pilihAnggota('B')">Ardan Fahriza</button>
+        <button id="btn-C" onclick="pilihAnggota('C')">Firmansyah</button>
+        <button id="btn-D" onclick="pilihAnggota('D')">Muhammad Azzam Irransyah</button>
+        <button id="btn-E" onclick="pilihAnggota('E')">Revan Aufa Hilal Kamil</button>
 
         <button onclick="logout()" class="btn-logout">Logout</button>
     </aside>
@@ -83,19 +111,21 @@
     <!-- CONTENT -->
     <main class="content">
         <header class="header">
-            <h2>DASHBOARD JURNAL</h2>
+            <h2>DASHBOARD PKL</h2>
         </header>
 
-        <h1 id="judul-halaman">Kegiatan Saya</h1>
+        <h1 id="judul-anggota">Kegiatan : Achmad Darell Yusuf</h1>
 
-        <!-- FORM INPUT -->
-        <form id="form-jurnal" class="form">
-            <input type="date" id="tanggal" required>
-            <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
-            <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
-            <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
-            <button type="submit" id="btn-simpan">Simpan Jurnal</button>
-        </form>
+        <!-- AREA FORM INPUT -->
+        <div id="area-form">
+            <form id="form-jurnal" class="form">
+                <input type="date" id="tanggal" required>
+                <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
+                <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
+                <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
+                <button type="submit" id="btn-simpan">Simpan Jurnal</button>
+            </form>
+        </div>
 
         <!-- TABLE DATA -->
         <table>
@@ -116,32 +146,82 @@
 </div>
 
 <script>
-    // 1. Proteksi Login
+    // 1. Cek Login
     const userEmail = localStorage.getItem('user_email');
     if (!userEmail) {
         window.location.href = "login.html";
     }
-
-    // Tampilkan email user di sidebar
     document.getElementById('user-display').innerText = userEmail;
 
-    // 2. Fungsi Logout
+    // 2. Pemetaan Email ke Kode Anggota
+    // SESUAIKAN EMAIL DENGAN NAMA ANGGOTA DIBAWAH INI:
+    const akunAnggota = {
+        'darell@gmail.com': 'A',
+        'ardan@gmail.com': 'B',
+        'firmansyah@gmail.com': 'C',
+        'azzam@gmail.com': 'D',
+        'revan@gmail.com': 'E'
+    };
+
+    const namaLengkap = {
+        'A': 'Achmad Darell Yusuf',
+        'B': 'Ardan Fahriza',
+        'C': 'Firmansyah',
+        'D': 'Muhammad Azzam Irransyah',
+        'E': 'Revan Aufa Hilal Kamil'
+    };
+
+    // Tentukan kode anggota dari email login
+    const kodeAnggotaSaya = akunAnggota[userEmail.toLowerCase()] || 'A';
+    let kodeAnggotaDilihat = kodeAnggotaSaya; // Default buka halaman sendiri
+
+    const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
+
     function logout() {
         localStorage.removeItem('user_email');
         window.location.href = "login.html";
     }
 
-    // 3. API URL Backend
-    const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
+    // Fungsi ganti tampilan anggota saat sidebar diklik
+    function pilihAnggota(kode) {
+        kodeAnggotaDilihat = kode;
 
-    // Function Ambil Data Khusus Akun Ini
+        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaLengkap[kode];
+
+        document.querySelectorAll('.sidebar button:not(.btn-logout)').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${kode}`).classList.add('active');
+
+        // Atur Form: Jika sedang melihat akun orang lain, sembunyikan form input
+        const areaForm = document.getElementById('area-form');
+        if (kodeAnggotaDilihat === kodeAnggotaSaya) {
+            areaForm.innerHTML = `
+                <form id="form-jurnal" class="form">
+                    <input type="date" id="tanggal" required>
+                    <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
+                    <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
+                    <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
+                    <button type="submit" id="btn-simpan">Simpan Jurnal</button>
+                </form>
+            `;
+            pasangListenerForm();
+        } else {
+            areaForm.innerHTML = `
+                <div class="notice-box">
+                    🔒 Anda hanya bisa melihat data milik <b>${namaLengkap[kode]}</b>. Anda tidak dapat menambah/mengedit jurnal orang lain.
+                </div>
+            `;
+        }
+
+        muatDataJurnal();
+    }
+
+    // Function Ambil Data dari Backend
     async function muatDataJurnal() {
         const tbody = document.getElementById('tabel-body');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
         try {
-            // Mengambil data berdasarkan email user yang sedang login
-            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(userEmail)}`);
+            const response = await fetch(`${API_URL}?nama=${kodeAnggotaDilihat}`);
             const data = await response.json();
 
             tbody.innerHTML = '';
@@ -168,50 +248,55 @@
         }
     }
 
-    // Function Simpan Data Jurnal Khusus Akun Ini
-    document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Function Submit Form
+    function pasangListenerForm() {
+        const form = document.getElementById('form-jurnal');
+        if (!form) return;
 
-        const btnSimpan = document.getElementById('btn-simpan');
-        btnSimpan.innerText = "Saving...";
-        btnSimpan.disabled = true;
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        const payload = {
-            tanggal: document.getElementById('tanggal').value,
-            judul: document.getElementById('judul').value,
-            kegiatan: document.getElementById('kegiatan').value,
-            keterangan: document.getElementById('keterangan').value,
-            nama: userEmail // Otomatis mengikat ke email user yang login
-        };
+            const btnSimpan = document.getElementById('btn-simpan');
+            btnSimpan.innerText = "Saving...";
+            btnSimpan.disabled = true;
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const payload = {
+                tanggal: document.getElementById('tanggal').value,
+                judul: document.getElementById('judul').value,
+                kegiatan: document.getElementById('kegiatan').value,
+                keterangan: document.getElementById('keterangan').value,
+                nama: kodeAnggotaSaya // Mengikat pengiriman data ke kode akun sendiri
+            };
 
-            if (response.ok) {
-                alert('Jurnal berhasil disimpan!');
-                document.getElementById('judul').value = '';
-                document.getElementById('kegiatan').value = '';
-                document.getElementById('keterangan').value = '';
-                
-                muatDataJurnal();
-            } else {
-                alert('Gagal menyimpan data.');
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert('Jurnal berhasil disimpan!');
+                    document.getElementById('judul').value = '';
+                    document.getElementById('kegiatan').value = '';
+                    document.getElementById('keterangan').value = '';
+                    
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan data.');
+                }
+            } catch (error) {
+                console.error('Error post data:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btnSimpan.innerText = "Simpan Jurnal";
+                btnSimpan.disabled = false;
             }
-        } catch (error) {
-            console.error('Error post data:', error);
-            alert('Terjadi kesalahan jaringan.');
-        } finally {
-            btnSimpan.innerText = "Simpan Jurnal";
-            btnSimpan.disabled = false;
-        }
-    });
+        });
+    }
 
-    // Load data milik user saat halaman terbuka
-    muatDataJurnal();
+    // Inisialisasi awal
+    pilihAnggota(kodeAnggotaSaya);
 </script>
 
 </body>
