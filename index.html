@@ -19,8 +19,8 @@
             flex-direction: column;
         }
         .sidebar h2 { margin-bottom: 5px; font-size: 1.2rem; }
-        .sidebar .user-info { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; word-break: break-all; }
-        .sidebar button {
+        .sidebar .user-info { font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; word-break: break-all; }
+        .sidebar-list button {
             display: block;
             width: 100%;
             text-align: left;
@@ -34,13 +34,19 @@
             font-size: 0.9rem;
             transition: 0.2s;
         }
-        .sidebar button.active,
-        .sidebar button:hover { background: #2563eb; }
+        .sidebar-list button.active,
+        .sidebar-list button:hover { background: #2563eb; }
         .btn-logout {
             background: #dc2626 !important;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
             margin-top: auto;
             text-align: center !important;
             font-weight: bold;
+            cursor: pointer;
+            width: 100%;
         }
         .btn-logout:hover { background: #b91c1c !important; }
 
@@ -98,12 +104,11 @@
         <h2>JURNAL PKL</h2>
         <div class="user-info">Login sebagai:<br><b id="user-display">-</b></div>
 
-        <small style="color:#94a3b8; margin-bottom: 8px; display:block;">Pilih Anggota (Lihat Data):</small>
-        <button id="btn-A" class="active" onclick="pilihAnggota('A')">Achmad Darell Yusuf</button>
-        <button id="btn-B" onclick="pilihAnggota('B')">Ardan Fahriza</button>
-        <button id="btn-C" onclick="pilihAnggota('C')">Firmansyah</button>
-        <button id="btn-D" onclick="pilihAnggota('D')">Muhammad Azzam Irransyah</button>
-        <button id="btn-E" onclick="pilihAnggota('E')">Revan Aufa Hilal Kamil</button>
+        <small style="color:#94a3b8; margin-bottom: 8px; display:block;">Daftar Anggota PKL:</small>
+        
+        <div id="sidebar-list" class="sidebar-list">
+            <!-- List Anggota Muncul Otomatis -->
+        </div>
 
         <button onclick="logout()" class="btn-logout">Logout</button>
     </aside>
@@ -114,7 +119,7 @@
             <h2>DASHBOARD PKL</h2>
         </header>
 
-        <h1 id="judul-anggota">Kegiatan : Achmad Darell Yusuf</h1>
+        <h1 id="judul-anggota">Kegiatan Saya</h1>
 
         <!-- AREA FORM INPUT -->
         <div id="area-form">
@@ -148,54 +153,65 @@
 <script>
     // 1. Cek Login
     const userEmail = localStorage.getItem('user_email');
+    const userNama = localStorage.getItem('user_nama') || userEmail;
+
     if (!userEmail) {
         window.location.href = "login.html";
     }
-    document.getElementById('user-display').innerText = userEmail;
-
-    // 2. Pemetaan Email ke Kode Anggota (JIKA MENGGUNAKAN DAFTAR ANGGOTA TETAP)
-    // Silahkan isi email akun asli masing-masing temanmu di sini:
-    // GANTI DENGAN EMAIL ASLI KAMU DAN TEMAN-TEMANMU:
-const akunAnggota = {
-    'darellgaming0@gmail.com': 'A',      // Email User 1 (Achmad Darell Yusuf)
-    'email_teman2@gmail.com': 'B',    // Email User 2 (Ardan Fahriza)
-    'email_teman3@gmail.com': 'C',    // Email User 3 (Firmansyah)
-    'email_teman4@gmail.com': 'D',    // Email User 4 (Muhammad Azzam Irransyah)
-    'email_teman5@gmail.com': 'E'     // Email User 5 (Revan Aufa Hilal Kamil)
-};
-    const namaLengkap = {
-        'A': 'Achmad Darell Yusuf',
-        'B': 'Ardan Fahriza',
-        'C': 'Firmansyah',
-        'D': 'Muhammad Azzam Irransyah',
-        'E': 'Revan Aufa Hilal Kamil'
-    };
-
-    // Jika email terdaftar di 'akunAnggota', gunakan kodenya. Jika tidak, gunakan email langsung.
-    const kodeAnggotaSaya = akunAnggota[userEmail.toLowerCase()] || userEmail.toLowerCase();
-    let kodeAnggotaDilihat = kodeAnggotaSaya;
+    document.getElementById('user-display').innerText = `${userNama} (${userEmail})`;
 
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
+    
+    // Default: Nama anggota yang sedang dilihat
+    let namaAnggotaDilihat = userNama;
+
+    // Daftar Default 5 Anggota Utama (Bisa otomatis bertambah jika ada user baru)
+    const daftarAnggotaBawaan = [
+        "Achmad Darell Yusuf",
+        "Ardan Fahriza",
+        "Firmansyah",
+        "Muhammad Azzam Irransyah",
+        "Revan Aufa Hilal Kamil"
+    ];
 
     function logout() {
         localStorage.removeItem('user_email');
+        localStorage.removeItem('user_nama');
         window.location.href = "login.html";
     }
 
+    // Render Tombol Sidebar
+    function renderSidebar() {
+        const sidebarContainer = document.getElementById('sidebar-list');
+        sidebarContainer.innerHTML = '';
+
+        // Gabungkan daftar bawaan dengan nama user yang sedang login jika belum ada
+        let daftarAll = [...daftarAnggotaBawaan];
+        if (!daftarAll.includes(userNama)) {
+            daftarAll.push(userNama);
+        }
+
+        daftarAll.forEach(nama => {
+            const btn = document.createElement('button');
+            btn.innerText = nama;
+            if (nama === namaAnggotaDilihat) btn.classList.add('active');
+            btn.onclick = () => pilihAnggota(nama);
+            sidebarContainer.appendChild(btn);
+        });
+    }
+
     // Fungsi ganti tampilan anggota saat sidebar diklik
-    function pilihAnggota(kode) {
-        kodeAnggotaDilihat = kode;
+    function pilihAnggota(nama) {
+        namaAnggotaDilihat = nama;
 
-        const namaTampil = namaLengkap[kode] || kode;
-        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaTampil;
+        document.getElementById('judul-anggota').innerText = "Kegiatan : " + nama;
 
-        document.querySelectorAll('.sidebar button:not(.btn-logout)').forEach(btn => btn.classList.remove('active'));
-        const btnAktif = document.getElementById(`btn-${kode}`);
-        if(btnAktif) btnAktif.classList.add('active');
+        // Update tombol aktif
+        renderSidebar();
 
-        // Atur Form: Hanya muncul jika membuka tab miliknya sendiri
+        // Atur Form: Jika sedang membuka tab sendiri, tampilkan form
         const areaForm = document.getElementById('area-form');
-        if (kodeAnggotaDilihat === kodeAnggotaSaya) {
+        if (namaAnggotaDilihat === userNama) {
             areaForm.innerHTML = `
                 <form id="form-jurnal" class="form">
                     <input type="date" id="tanggal" required>
@@ -209,7 +225,7 @@ const akunAnggota = {
         } else {
             areaForm.innerHTML = `
                 <div class="notice-box">
-                    🔒 Anda sedang melihat jurnal <b>${namaTampil}</b>. Anda tidak dapat menambah data ke akun ini.
+                    🔒 Anda sedang melihat jurnal <b>${nama}</b>. Anda tidak dapat menginput data ke akun orang lain.
                 </div>
             `;
         }
@@ -217,13 +233,13 @@ const akunAnggota = {
         muatDataJurnal();
     }
 
-    // Function Ambil Data dari Backend
+    // Fetch Data
     async function muatDataJurnal() {
         const tbody = document.getElementById('tabel-body');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
         try {
-            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(kodeAnggotaDilihat)}`);
+            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
             const data = await response.json();
 
             tbody.innerHTML = '';
@@ -250,7 +266,7 @@ const akunAnggota = {
         }
     }
 
-    // Function Submit Form
+    // Submit Jurnal
     function pasangListenerForm() {
         const form = document.getElementById('form-jurnal');
         if (!form) return;
@@ -267,7 +283,7 @@ const akunAnggota = {
                 judul: document.getElementById('judul').value,
                 kegiatan: document.getElementById('kegiatan').value,
                 keterangan: document.getElementById('keterangan').value,
-                nama: kodeAnggotaSaya // Data akan terikat langsung ke kode/email user yang sedang login
+                nama: userNama // Langsung otomatis tersimpan atas Nama User saat ini
             };
 
             try {
@@ -297,8 +313,9 @@ const akunAnggota = {
         });
     }
 
-    // Jalankan awal
-    pilihAnggota(kodeAnggotaSaya);
+    // Jalankan Awal
+    renderSidebar();
+    pilihAnggota(userNama);
 </script>
 
 </body>
