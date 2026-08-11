@@ -1,125 +1,233 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jurnal Harian PKL</title>
-  <!-- Menggunakan Tailwind CSS CDN agar tampilan langsung rapi tanpa install apapun -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Jurnal PKL</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { margin: 0; background: #f1f5f9; }
+        .container { display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+        }
+        .sidebar h2 { margin-bottom: 20px; font-size: 1.2rem; }
+        .sidebar button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .sidebar button.active,
+        .sidebar button:hover { background: #2563eb; }
+
+        /* CONTENT */
+        .content { flex: 1; padding: 30px; background: white; }
+        .header {
+            background: #2563eb;
+            padding: 18px 0;
+            margin: -30px -30px 25px -30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .header h2 { margin: 0; color: white; letter-spacing: 2px; }
+
+        /* FORM */
+        .form { max-width: 500px; margin-bottom: 30px; }
+        .form input, .form textarea, .form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .form button:hover { background: #1d4ed8; }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2563eb; color: white; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen p-4 md:p-8">
+<body>
 
-  <div class="max-w-xl mx-auto space-y-6">
-    
-    <!-- HEADER -->
-    <header class="text-center space-y-1">
-      <h1 class="text-2xl font-bold tracking-tight text-gray-900">📖 Jurnal Harian PKL</h1>
-      <p class="text-xs text-gray-500">Catat kegiatan harian PKL dengan cepat dan simpel.</p>
-    </header>
+<div class="container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <h2>Anggota PKL</h2>
+        <button id="btn-A" class="active" onclick="pilihAnggota('A')">Achmad Darell Yusuf</button>
+        <button id="btn-B" onclick="pilihAnggota('B')">Ardan Fahriza</button>
+        <button id="btn-C" onclick="pilihAnggota('C')">Firmansyah</button>
+        <button id="btn-D" onclick="pilihAnggota('D')">Muhammad Azzam Irransyah</button>
+        <button id="btn-E" onclick="pilihAnggota('E')">Revan Aufa Hilal Kamil</button>
+    </aside>
 
-    <!-- FORM INPUT JURNAL -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-      <h2 class="text-sm font-semibold text-gray-700 mb-3">Tambah Catatan Baru</h2>
-      <form id="formJurnal" class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
-          <input type="date" id="tanggal" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Judul / Topik</label>
-          <input type="text" id="judul" placeholder="Contoh: Membuat Database Supabase & Go" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Kegiatan / Catatan Detail</label>
-          <textarea id="kegiatan" rows="3" placeholder="Apa saja yang kamu kerjakan hari ini?" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"></textarea>
-        </div>
-        <button type="submit" id="btnSimpan" class="w-full bg-black text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 transition shadow-sm">
-          Simpan Jurnal
-        </button>
-      </form>
-    </section>
+    <!-- CONTENT -->
+    <main class="content">
+        <header class="header">
+            <h2>JURNAL PKL</h2>
+        </header>
 
-    <!-- DAFTAR CATATAN TERSEMPAN -->
-    <section class="space-y-3">
-      <h2 class="text-sm font-semibold text-gray-700">Riwayat Catatan</h2>
-      <div id="containerJurnal" class="space-y-3">
-        <!-- Data dari Backend Go bakal muncul di sini secara otomatis -->
-        <p class="text-xs text-gray-400 text-center py-4">Memuat riwayat jurnal...</p>
-      </div>
-    </section>
+        <h1 id="judul-anggota">Kegiatan : Achmad Darell Yusuf</h1>
 
-  </div>
+        <!-- FORM INPUT -->
+        <form id="form-jurnal" class="form">
+            <input type="date" id="tanggal" required>
+            <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
+            <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
+            <textarea id="keterangan" placeholder="Keterangan Rincian Kegiatan" rows="3" required></textarea>
+            <button type="submit" id="btn-simpan">Simpan Jurnal</button>
+        </form>
 
-  <!-- SCRIPT LOGIKA UNTUK NGOBROL DENGAN BACKEND GOLANG -->
-  <script>
-    // URL Backend Golang kamu saat diuji di laptop (Localhost)
+        <!-- TABLE DATA -->
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Judul</th>
+                    <th>Kegiatan</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-body">
+                <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </main>
+</div>
+
+<script>
+    // URL Backend Golang di Vercel
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
 
-    // 1. Fungsi untuk Ambil Data Jurnal dari Backend Go
-    async function ambilJurnal() {
-      const container = document.getElementById("containerJurnal");
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    // Mapping Kode ke Nama Lengkap
+    const namaLengkap = {
+        'A': 'Achmad Darell Yusuf',
+        'B': 'Ardan Fahriza',
+        'C': 'Firmansyah',
+        'D': 'Muhammad Azzam Irransyah',
+        'E': 'Revan Aufa Hilal Kamil'
+    };
 
-        if (!data || data.length === 0) {
-          container.innerHTML = `<div class="bg-white p-4 rounded-xl border border-gray-200 text-center text-xs text-gray-400">Belum ada jurnal yang disimpan.</div>`;
-          return;
-        }
+    let kodeAnggotaAktif = 'A'; // Default awal
 
-        // Tampilkan daftar kartu jurnal
-        container.innerHTML = data.map(item => `
-          <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${item.tanggal}</span>
-              <span class="text-[10px] text-gray-400">#${item.id}</span>
-            </div>
-            <h3 class="font-semibold text-sm text-gray-800">${item.judul}</h3>
-            <p class="text-xs text-gray-600 whitespace-pre-line leading-relaxed">${item.kegiatan}</p>
-          </div>
-        `).join('');
-      } catch (err) {
-        container.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl border border-red-200 text-center text-xs">Gagal terhubung ke Backend Golang. Pastikan backend di terminal sudah di-run!</div>`;
-      }
+    // Function saat tombol sidebar diklik
+    function pilihAnggota(kode) {
+        kodeAnggotaAktif = kode;
+
+        // Update Judul Halaman
+        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaLengkap[kode];
+
+        // Update CSS tombol aktif di sidebar
+        document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${kode}`).classList.add('active');
+
+        // Load data dari backend
+        muatDataJurnal();
     }
 
-    // 2. Fungsi untuk Kirim Data Baru ke Backend Go
-    document.getElementById("formJurnal").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      
-      const btn = document.getElementById("btnSimpan");
-      btn.innerText = "Menyimpan...";
-      btn.disabled = true;
+    // Function untuk Mengambil Data dari Backend Golang
+    async function muatDataJurnal() {
+        const tbody = document.getElementById('tabel-body');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
-      const payload = {
-        tanggal: document.getElementById("tanggal").value,
-        judul: document.getElementById("judul").value,
-        kegiatan: document.getElementById("kegiatan").value,
-      };
+        try {
+            const response = await fetch(`${API_URL}?nama=${kodeAnggotaAktif}`);
+            const data = await response.json();
 
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+            tbody.innerHTML = ''; // Bersihkan loader
 
-        if (res.ok) {
-          document.getElementById("formJurnal").reset();
-          await ambilJurnal(); // Refresh riwayat jurnal
-        } else {
-          alert("Gagal menyimpan data ke database.");
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data jurnal.</td></tr>';
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.tanggal}</td>
+                    <td>${row.judul || '-'}</td>
+                    <td>${row.kegiatan}</td>
+                    <td>${row.keterangan || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal mengambil data dari server.</td></tr>';
         }
-      } catch (err) {
-        alert("Terjadi kesalahan koneksi ke Backend.");
-      } finally {
-        btn.innerText = "Simpan Jurnal";
-        btn.disabled = false;
-      }
+    }
+
+    // Function Simpan Data Jurnal
+    document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const btnSimpan = document.getElementById('btn-simpan');
+        btnSimpan.innerText = "Saving...";
+        btnSimpan.disabled = true;
+
+        const payload = {
+            tanggal: document.getElementById('tanggal').value,
+            judul: document.getElementById('judul').value,
+            kegiatan: document.getElementById('kegiatan').value,
+            keterangan: document.getElementById('keterangan').value,
+            nama: kodeAnggotaAktif
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert('Jurnal berhasil disimpan!');
+                // Reset Form
+                document.getElementById('judul').value = '';
+                document.getElementById('kegiatan').value = '';
+                document.getElementById('keterangan').value = '';
+                
+                // Refresh Tabel Data
+                muatDataJurnal();
+            } else {
+                alert('Gagal menyimpan data.');
+            }
+        } catch (error) {
+            console.error('Error post data:', error);
+            alert('Terjadi kesalahan jaringan.');
+        } finally {
+            btnSimpan.innerText = "Simpan Jurnal";
+            btnSimpan.disabled = false;
+        }
     });
 
-    // Jalankan fungsi ini pertama kali halaman dibuka
-    ambilJurnal();
-  </script>
+    // Load data otomatis saat pertama kali halaman dibuka
+    muatDataJurnal();
+</script>
+
 </body>
 </html>
