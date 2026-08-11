@@ -308,25 +308,26 @@
         </div>
 
         <!-- TAB 2: TABEL REKAP ABSENSI -->
-        <div id="tab-absen-container" style="display: none;">
-            <div class="table-container">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Hari, Tanggal</th>
-                            <th>Masuk</th>
-                            <th>Keluar</th>
-                            <th>Status</th>
-                            <th>Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-absen-body">
-                        <tr><td colspan="6" style="text-align:center;">Memuat data absensi...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div id="tab-absen-container" style="display: none;">
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Hari, Tanggal</th>
+                    <th>Masuk</th>
+                    <th>Keluar</th>
+                    <th>Status</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th> <!-- Tambahan Kolom Aksi -->
+                </tr>
+            </thead>
+            <tbody id="table-absen-body">
+                <tr><td colspan="7" style="text-align:center;">Memuat data absensi...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
     </main>
 
@@ -533,7 +534,6 @@
             const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
             rawDataAll = await response.json();
 
-            // PISAHKAN DATA KEGIATAN DAN ABSENSI
             listKegiatan = rawDataAll.filter(item => !(item.judul && item.judul.startsWith("ABSENSI:")));
             listAbsensi = rawDataAll.filter(item => item.judul && item.judul.startsWith("ABSENSI:"));
 
@@ -549,6 +549,37 @@
         } catch (error) {
             console.error(error);
             if (feed) feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
+        }
+    }
+
+    // FUNGSI HAPUS DATA (DELETE)
+    async function hapusData(id, deskripsi) {
+        if (userRole === 'viewer') {
+            alert("Akses ditolak: Viewer/Admin tidak dapat menghapus data.");
+            return;
+        }
+
+        if (namaAnggotaDilihat !== userNama) {
+            alert("Akses ditolak: Anda hanya dapat menghapus data milik Anda sendiri.");
+            return;
+        }
+
+        if (confirm(`Apakah Anda yakin ingin menghapus data "${deskripsi}"?`)) {
+            try {
+                const response = await fetch(`${API_URL}?id=${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Data berhasil dihapus!');
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menghapus data.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan jaringan saat menghapus data.');
+            }
         }
     }
 
@@ -569,11 +600,20 @@
         data.forEach(row => {
             const card = document.createElement('article');
             card.className = 'feed-card';
+            
+            // Tampilkan tombol hapus jika milik sendiri & bukan viewer
+            const deleteBtnHtml = (userRole !== 'viewer' && namaAnggotaDilihat === userNama && row._id)
+                ? `<button type="button" onclick="hapusData('${row._id}', '${row.judul || 'Kegiatan'}')" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; margin-left: auto;">🗑️ Hapus</button>`
+                : '';
+
             card.innerHTML = `
                 <div class="feed-dot"></div>
-                <div class="card-header">
+                <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <div class="card-date">🕒 ${formatTanggalWaktu(row.tanggal)}</div>
-                    <span class="cat-pill">KEGIATAN</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span class="cat-pill">KEGIATAN</span>
+                        ${deleteBtnHtml}
+                    </div>
                 </div>
                 <h3 class="feed-title">${row.judul || '-'}</h3>
                 <div class="feed-sub">${row.kegiatan}</div>
@@ -583,14 +623,13 @@
         });
     }
 
-    // RENDRING TABEL ABSENSI DENGAN DETEKSI TERLAMBAT (> 09:00 WIB)
     function renderTabelAbsensi(dataAbsen) {
         const tbody = document.getElementById('table-absen-body');
         if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!dataAbsen || dataAbsen.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color: var(--text-muted);">Belum ada riwayat absensi.</td></tr>`;
             return;
         }
 
@@ -598,8 +637,10 @@
         dataAbsen.forEach(item => {
             const tglKey = item.tanggal ? item.tanggal.slice(0, 10) : 'unknown';
             if (!grouped[tglKey]) {
-                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal, isLate: false, lateMinutes: 0 };
+                grouped[tglKey] = { masuk: '-', keluar: '-', status: 'Hadir', keterangan: '-', rawDate: item.tanggal, isLate: false, lateMinutes: 0, ids: [] };
             }
+
+            if (item._id) grouped[tglKey].ids.push(item._id);
 
             const dObj = new Date(item.tanggal);
             const timeStr = dObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
@@ -607,7 +648,6 @@
             if (item.judul.includes("MASUK")) {
                 grouped[tglKey].masuk = timeStr + ' WIB';
 
-                // CEK KETERLAMBATAN (Batas 09:00 WIB)
                 const jam = dObj.getHours();
                 const menit = dObj.getMinutes();
                 if (jam > 9 || (jam === 9 && menit > 0)) {
@@ -634,10 +674,16 @@
             const rowData = grouped[key];
             const tr = document.createElement('tr');
 
-            // Format Tampilan Status
             let statusHtml = `<span class="badge-status ${rowData.status}">${rowData.status}</span>`;
             if (rowData.isLate) {
                 statusHtml += ` <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-left: 4px;">Terlambat (${rowData.lateMinutes} mnt)</span>`;
+            }
+
+            // Tombol Hapus Absen Hari Tersebut
+            let deleteBtnHtml = '-';
+            if (userRole !== 'viewer' && namaAnggotaDilihat === userNama && rowData.ids.length > 0) {
+                const idsParam = JSON.stringify(rowData.ids).replace(/"/g, '&quot;');
+                deleteBtnHtml = `<button type="button" onclick="hapusMultipleAbsen('${key}', ${idsParam})" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;">🗑️ Hapus</button>`;
             }
 
             tr.innerHTML = `
@@ -647,9 +693,25 @@
                 <td style="color: #0284c7; font-weight: 700;">${rowData.keluar}</td>
                 <td>${statusHtml}</td>
                 <td style="color: var(--text-muted);">${rowData.keterangan}</td>
+                <td>${deleteBtnHtml}</td>
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    async function hapusMultipleAbsen(tglStr, ids) {
+        if (confirm(`Apakah Anda yakin ingin menghapus data presensi tanggal ${formatTanggalOnly(tglStr)}?`)) {
+            try {
+                for (const id of ids) {
+                    await fetch(`${API_URL}?id=${id}`, { method: 'DELETE' });
+                }
+                alert('Data presensi berhasil dihapus!');
+                muatDataJurnal();
+            } catch (err) {
+                console.error(err);
+                alert('Gagal menghapus sebagian atau seluruh data presensi.');
+            }
+        }
     }
 
     function filterJurnal() {
@@ -806,7 +868,7 @@
         });
     }
 
-    // SUBMIT FORM ABSENSI / IZIN / SUSULAN
+    // SUBMIT FORM PRESENSI / IZIN SUSULAN
     const formIzin = document.getElementById('form-izin');
     if (formIzin) {
         formIzin.addEventListener('submit', async function(e) {
