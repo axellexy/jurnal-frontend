@@ -219,27 +219,6 @@
     </header>
 
     <main class="app-container">
-      <!-- KOTAK UPLOAD KHUSUS ADMIN / PEMBIMBING -->
-<div id="admin-upload-section" style="display: none; background: rgba(30, 41, 59, 0.85); padding: 20px; border-radius: 16px; border: 1px solid #334155; margin-bottom: 24px;">
-    <h3 style="color: #f8fafc; font-size: 1.1rem; margin-bottom: 8px;">📂 Upload Dokumen Rekap Absensi (Admin)</h3>
-    <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 16px;">Format yang didukung: Excel (.xlsx, .xls) atau Word (.docx, .doc)</p>
-    
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <input type="file" id="input-dokumen-admin" accept=".xlsx, .xls, .docx, .doc" style="background: rgba(15, 23, 42, 0.6); color: white; padding: 10px; border-radius: 8px; border: 1px solid #334155; font-size: 0.85rem;">
-        <button onclick="uploadDokumenAbsensi()" id="btn-upload-admin" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer;">Upload Dokumen</button>
-    </div>
-
-    <!-- Tampilkan status / pesan -->
-    <div id="upload-status-msg" style="margin-top: 10px; font-size: 0.85rem; font-weight: 600;"></div>
-
-    <!-- Tabel / List File yang Sudah Diupload -->
-    <div style="margin-top: 20px;">
-        <h4 style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 10px;">Daftar Dokumen Absensi:</h4>
-        <ul id="list-dokumen-absensi" style="list-style: none; padding: 0;">
-            <!-- File yang diupload akan muncul di sini secara dinamis -->
-        </ul>
-    </div>
-</div>
 
         <!-- HERO BANNER -->
         <section class="hero-banner">
@@ -412,100 +391,6 @@
     </div>
 
 <script>
-  // Cek Role saat halaman dimuat
-    document.addEventListener("DOMContentLoaded", function() {
-        const role = localStorage.getItem('user_role');
-        
-        // Tampilkan kotak upload HANYA jika role adalah viewer / admin
-        if (role === 'viewer') {
-            document.getElementById('admin-upload-section').style.display = 'block';
-            muatDaftarDokumen(); // Ambil list file saat admin membuka halaman
-        }
-    });
-
-    // Fungsi Upload File ke Supabase Storage
-    async function uploadDokumenAbsensi() {
-        const fileInput = document.getElementById('input-dokumen-admin');
-        const statusMsg = document.getElementById('upload-status-msg');
-        const btnUpload = document.getElementById('btn-upload-admin');
-
-        if (!fileInput.files || fileInput.files.length === 0) {
-            statusMsg.style.color = '#ef4444';
-            statusMsg.innerText = "⚠️ Pilih file Word atau Excel terlebih dahulu!";
-            return;
-        }
-
-        const file = fileInput.files[0];
-        // Penamaan file unik berdasarkan timestamp agar tidak saling menimpa
-        const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-
-        statusMsg.style.color = '#38bdf8';
-        statusMsg.innerText = "⏳ Memproses upload...";
-        btnUpload.disabled = true;
-
-        try {
-            // Upload file ke bucket 'absensi-dokumen'
-            const { data, error } = await supabaseClient.storage
-                .from('absensi-dokumen')
-                .upload(fileName, file);
-
-            if (error) {
-                throw error;
-            }
-
-            statusMsg.style.color = '#22c55e';
-            statusMsg.innerText = "✅ Dokumen berhasil diunggah!";
-            fileInput.value = ''; // Reset input file
-            muatDaftarDokumen(); // Refresh list dokumen
-
-        } catch (err) {
-            console.error(err);
-            statusMsg.style.color = '#ef4444';
-            statusMsg.innerText = "❌ Gagal upload: " + err.message;
-        } finally {
-            btnUpload.disabled = false;
-        }
-    }
-
-    // Fungsi Memuat List Dokumen dari Supabase Storage
-    async function muatDaftarDokumen() {
-        const listContainer = document.getElementById('list-dokumen-absensi');
-        listContainer.innerHTML = "<li style='color: #94a3b8; font-size: 0.8rem;'>Memuat dokumen...</li>";
-
-        const { data, error } = await supabaseClient.storage
-            .from('absensi-dokumen')
-            .list('', { limit: 20, sortBy: { column: 'created_at', order: 'desc' } });
-
-        if (error || !data || data.length === 0) {
-            listContainer.innerHTML = "<li style='color: #94a3b8; font-size: 0.8rem;'>Belum ada dokumen yang diupload.</li>";
-            return;
-        }
-
-        listContainer.innerHTML = "";
-
-        data.forEach(item => {
-            // Dapatkan Public URL untuk unduh
-            const { data: urlData } = supabaseClient.storage
-                .from('absensi-dokumen')
-                .getPublicUrl(item.name);
-
-            const isExcel = item.name.endsWith('.xlsx') || item.name.endsWith('.xls');
-            const icon = isExcel ? '📊' : '📝';
-
-            const li = document.createElement('li');
-            li.style.cssText = "background: rgba(15, 23, 42, 0.4); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;";
-            
-            li.innerHTML = `
-                <div style="font-size: 0.85rem; color: #f8fafc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px;">
-                    ${icon} ${item.name.split('_').slice(1).join('_')}
-                </div>
-                <a href="${urlData.publicUrl}" target="_blank" download style="background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.75rem; font-weight: 700;">
-                    📥 Unduh
-                </a>
-            `;
-            listContainer.appendChild(li);
-        });
-    }
     const userEmail = localStorage.getItem('user_email');
     const userNama = localStorage.getItem('user_nama') || userEmail;
     const userRole = localStorage.getItem('user_role') || 'user';
