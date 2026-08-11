@@ -116,26 +116,18 @@
             max-width: 600px;
         }
 
-        /* TABLE CONTAINER & TABLE */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        /* DESKTOP TABLE STYLE */
+        .table-responsive { width: 100%; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; font-size: 0.9rem; }
-        th { background: #2563eb; color: white; white-space: nowrap; }
+        th { background: #2563eb; color: white; }
 
-        /* RESPONSIVE DESIGN (HP & TABLET) */
+        /* RESPONSIVE DESIGN (TAMPILAN KHUSUS HP) */
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
             .sidebar {
                 position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
+                top: 0; left: 0; bottom: 0;
                 transform: translateX(-100%);
                 box-shadow: 4px 0 15px rgba(0,0,0,0.2);
             }
@@ -144,6 +136,49 @@
             .header { margin: -15px -15px 15px -15px; padding: 15px; }
             .header h2 { font-size: 1rem; }
             #judul-anggota { font-size: 1.2rem; }
+
+            /* UBAH TABEL MENJADI CARD DI HP AGAR TIDAK USAH GESER */
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; } /* Sembunyikan Header Tabel */
+            
+            tr {
+                background: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 12px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            td {
+                border: none;
+                padding: 6px 0;
+                display: flex;
+                flex-direction: column;
+                font-size: 0.9rem;
+            }
+
+            /* Efek Label Otomatis untuk Tiap Baris */
+            td::before {
+                font-weight: bold;
+                color: #2563eb;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                margin-bottom: 2px;
+            }
+
+            td:nth-of-type(1)::before { content: "No"; }
+            td:nth-of-type(2)::before { content: "Tanggal & Waktu"; }
+            td:nth-of-type(3)::before { content: "Judul Kegiatan"; }
+            td:nth-of-type(4)::before { content: "Nama Kegiatan"; }
+            td:nth-of-type(5)::before { content: "Rincian Keterangan"; }
+            
+            td:nth-of-type(1) {
+                border-bottom: 1px solid #e2e8f0;
+                padding-bottom: 6px;
+                margin-bottom: 6px;
+                font-weight: bold;
+            }
         }
     </style>
 </head>
@@ -178,7 +213,6 @@
         <!-- AREA FORM INPUT -->
         <div id="area-form">
             <form id="form-jurnal" class="form">
-                <!-- MENGGUNAKAN TYPE DATETIME-LOCAL -->
                 <input type="datetime-local" id="tanggal" required>
                 <input type="text" id="judul" placeholder="Judul / Subjek Kegiatan" required>
                 <input type="text" id="kegiatan" placeholder="Nama Kegiatan Singkat" required>
@@ -187,14 +221,14 @@
             </form>
         </div>
 
-        <!-- TABLE DATA RESPONSIVE -->
+        <!-- TABLE DATA (OTOMATIS JADI CARD DI HP) -->
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th style="width: 160px;">Tanggal & Waktu</th>
-                        <th style="width: 150px;">Judul</th>
+                        <th style="width: 50px;">No</th>
+                        <th style="width: 170px;">Tanggal & Waktu</th>
+                        <th style="width: 160px;">Judul</th>
                         <th>Kegiatan</th>
                         <th>Keterangan</th>
                     </tr>
@@ -287,11 +321,19 @@
         muatDataJurnal();
     }
 
-    // Format tampilan tanggal & jam agar rapi di tabel
+    // Format tampilan tanggal & jam id-ID (12 Agt 2026, 08:30)
     function formatTanggalWaktu(rawDate) {
         if (!rawDate) return '-';
-        // Mengubah format "YYYY-MM-THH:mm" menjadi "YYYY-MM-DD HH:mm"
-        return rawDate.replace('T', ' ');
+        const dateObj = new Date(rawDate);
+        if (isNaN(dateObj.getTime())) return rawDate;
+
+        return dateObj.toLocaleString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).replace('.', ':');
     }
 
     async function muatDataJurnal() {
@@ -312,7 +354,7 @@
             data.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${index + 1}</td>
+                    <td>#${index + 1}</td>
                     <td><b>${formatTanggalWaktu(row.tanggal)}</b></td>
                     <td>${row.judul || '-'}</td>
                     <td>${row.kegiatan}</td>
