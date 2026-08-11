@@ -18,30 +18,20 @@
             display: flex;
             flex-direction: column;
         }
-        .sidebar h2 { margin-bottom: 20px; font-size: 1.2rem; }
-        .sidebar button {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: transparent;
+        .sidebar h2 { margin-bottom: 5px; font-size: 1.2rem; }
+        .sidebar p { font-size: 0.85rem; color: #94a3b8; word-break: break-all; margin-bottom: 25px; }
+        .btn-logout {
+            background: #dc2626;
             color: white;
             border: none;
             padding: 12px;
-            margin-bottom: 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.95rem;
-            transition: 0.2s;
-        }
-        .sidebar button.active,
-        .sidebar button:hover { background: #2563eb; }
-        .btn-logout {
-            background: #dc2626 !important;
-            margin-top: auto;
-            text-align: center !important;
             font-weight: bold;
+            margin-top: auto;
+            width: 100%;
         }
-        .btn-logout:hover { background: #b91c1c !important; }
+        .btn-logout:hover { background: #b91c1c; }
 
         /* CONTENT */
         .content { flex: 1; padding: 30px; background: white; }
@@ -84,12 +74,8 @@
 <div class="container">
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <h2>Anggota PKL</h2>
-        <button id="btn-A" class="active" onclick="pilihAnggota('A')">Achmad Darell Yusuf</button>
-        <button id="btn-B" onclick="pilihAnggota('B')">Ardan Fahriza</button>
-        <button id="btn-C" onclick="pilihAnggota('C')">Firmansyah</button>
-        <button id="btn-D" onclick="pilihAnggota('D')">Muhammad Azzam Irransyah</button>
-        <button id="btn-E" onclick="pilihAnggota('E')">Revan Aufa Hilal Kamil</button>
+        <h2>Jurnal PKL</h2>
+        <p id="user-display">Loading user...</p>
 
         <button onclick="logout()" class="btn-logout">Logout</button>
     </aside>
@@ -97,10 +83,10 @@
     <!-- CONTENT -->
     <main class="content">
         <header class="header">
-            <h2>JURNAL PKL</h2>
+            <h2>DASHBOARD JURNAL</h2>
         </header>
 
-        <h1 id="judul-anggota">Kegiatan : Achmad Darell Yusuf</h1>
+        <h1 id="judul-halaman">Kegiatan Saya</h1>
 
         <!-- FORM INPUT -->
         <form id="form-jurnal" class="form">
@@ -130,11 +116,14 @@
 </div>
 
 <script>
-    // 1. Proteksi Halaman: Cek apakah user sudah login
+    // 1. Proteksi Login
     const userEmail = localStorage.getItem('user_email');
     if (!userEmail) {
         window.location.href = "login.html";
     }
+
+    // Tampilkan email user di sidebar
+    document.getElementById('user-display').innerText = userEmail;
 
     // 2. Fungsi Logout
     function logout() {
@@ -142,45 +131,20 @@
         window.location.href = "login.html";
     }
 
-    // 3. Konfigurasi Backend Golang di Vercel
+    // 3. API URL Backend
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
 
-    // Mapping Kode ke Nama Lengkap
-    const namaLengkap = {
-        'A': 'Achmad Darell Yusuf',
-        'B': 'Ardan Fahriza',
-        'C': 'Firmansyah',
-        'D': 'Muhammad Azzam Irransyah',
-        'E': 'Revan Aufa Hilal Kamil'
-    };
-
-    let kodeAnggotaAktif = 'A'; // Default awal
-
-    // Function saat tombol sidebar diklik
-    function pilihAnggota(kode) {
-        kodeAnggotaAktif = kode;
-
-        // Update Judul Halaman
-        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaLengkap[kode];
-
-        // Update CSS tombol aktif di sidebar
-        document.querySelectorAll('.sidebar button:not(.btn-logout)').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${kode}`).classList.add('active');
-
-        // Load data dari backend
-        muatDataJurnal();
-    }
-
-    // Function untuk Mengambil Data dari Backend Golang
+    // Function Ambil Data Khusus Akun Ini
     async function muatDataJurnal() {
         const tbody = document.getElementById('tabel-body');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
         try {
-            const response = await fetch(`${API_URL}?nama=${kodeAnggotaAktif}`);
+            // Mengambil data berdasarkan email user yang sedang login
+            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(userEmail)}`);
             const data = await response.json();
 
-            tbody.innerHTML = ''; // Bersihkan loader
+            tbody.innerHTML = '';
 
             if (!data || data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data jurnal.</td></tr>';
@@ -204,7 +168,7 @@
         }
     }
 
-    // Function Simpan Data Jurnal
+    // Function Simpan Data Jurnal Khusus Akun Ini
     document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -217,7 +181,7 @@
             judul: document.getElementById('judul').value,
             kegiatan: document.getElementById('kegiatan').value,
             keterangan: document.getElementById('keterangan').value,
-            nama: kodeAnggotaAktif
+            nama: userEmail // Otomatis mengikat ke email user yang login
         };
 
         try {
@@ -229,12 +193,10 @@
 
             if (response.ok) {
                 alert('Jurnal berhasil disimpan!');
-                // Reset Form
                 document.getElementById('judul').value = '';
                 document.getElementById('kegiatan').value = '';
                 document.getElementById('keterangan').value = '';
                 
-                // Refresh Tabel Data
                 muatDataJurnal();
             } else {
                 alert('Gagal menyimpan data.');
@@ -248,7 +210,7 @@
         }
     });
 
-    // Load data otomatis saat pertama kali halaman dibuka
+    // Load data milik user saat halaman terbuka
     muatDataJurnal();
 </script>
 
