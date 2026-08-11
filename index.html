@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jurnal Harian PKL</title>
+  <!-- Menggunakan Tailwind CSS CDN agar tampilan langsung rapi tanpa install apapun -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen p-4 md:p-8">
+
+  <div class="max-w-xl mx-auto space-y-6">
+    
+    <!-- HEADER -->
+    <header class="text-center space-y-1">
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900">📖 Jurnal Harian PKL</h1>
+      <p class="text-xs text-gray-500">Catat kegiatan harian PKL dengan cepat dan simpel.</p>
+    </header>
+
+    <!-- FORM INPUT JURNAL -->
+    <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">Tambah Catatan Baru</h2>
+      <form id="formJurnal" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
+          <input type="date" id="tanggal" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Judul / Topik</label>
+          <input type="text" id="judul" placeholder="Contoh: Membuat Database Supabase & Go" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Kegiatan / Catatan Detail</label>
+          <textarea id="kegiatan" rows="3" placeholder="Apa saja yang kamu kerjakan hari ini?" required class="w-full text-sm border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+        </div>
+        <button type="submit" id="btnSimpan" class="w-full bg-black text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 transition shadow-sm">
+          Simpan Jurnal
+        </button>
+      </form>
+    </section>
+
+    <!-- DAFTAR CATATAN TERSEMPAN -->
+    <section class="space-y-3">
+      <h2 class="text-sm font-semibold text-gray-700">Riwayat Catatan</h2>
+      <div id="containerJurnal" class="space-y-3">
+        <!-- Data dari Backend Go bakal muncul di sini secara otomatis -->
+        <p class="text-xs text-gray-400 text-center py-4">Memuat riwayat jurnal...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SCRIPT LOGIKA UNTUK NGOBROL DENGAN BACKEND GOLANG -->
+  <script>
+    // URL Backend Golang kamu saat diuji di laptop (Localhost)
+    const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
+
+    // 1. Fungsi untuk Ambil Data Jurnal dari Backend Go
+    async function ambilJurnal() {
+      const container = document.getElementById("containerJurnal");
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `<div class="bg-white p-4 rounded-xl border border-gray-200 text-center text-xs text-gray-400">Belum ada jurnal yang disimpan.</div>`;
+          return;
+        }
+
+        // Tampilkan daftar kartu jurnal
+        container.innerHTML = data.map(item => `
+          <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${item.tanggal}</span>
+              <span class="text-[10px] text-gray-400">#${item.id}</span>
+            </div>
+            <h3 class="font-semibold text-sm text-gray-800">${item.judul}</h3>
+            <p class="text-xs text-gray-600 whitespace-pre-line leading-relaxed">${item.kegiatan}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl border border-red-200 text-center text-xs">Gagal terhubung ke Backend Golang. Pastikan backend di terminal sudah di-run!</div>`;
+      }
+    }
+
+    // 2. Fungsi untuk Kirim Data Baru ke Backend Go
+    document.getElementById("formJurnal").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById("btnSimpan");
+      btn.innerText = "Menyimpan...";
+      btn.disabled = true;
+
+      const payload = {
+        tanggal: document.getElementById("tanggal").value,
+        judul: document.getElementById("judul").value,
+        kegiatan: document.getElementById("kegiatan").value,
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          document.getElementById("formJurnal").reset();
+          await ambilJurnal(); // Refresh riwayat jurnal
+        } else {
+          alert("Gagal menyimpan data ke database.");
+        }
+      } catch (err) {
+        alert("Terjadi kesalahan koneksi ke Backend.");
+      } finally {
+        btn.innerText = "Simpan Jurnal";
+        btn.disabled = false;
+      }
+    });
+
+    // Jalankan fungsi ini pertama kali halaman dibuka
+    ambilJurnal();
+  </script>
+</body>
+</html>
