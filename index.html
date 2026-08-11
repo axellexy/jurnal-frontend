@@ -220,115 +220,157 @@
 
     <main class="app-container">
 
-        <!-- HERO BANNER -->
-        <section class="hero-banner">
-            <div class="hero-top">
-                <div class="hero-title">
-                    <span>Aktivitas Siswa</span>
-                    <h2 id="hero-nama">-</h2>
-                </div>
-                <div class="badge-role" id="role-display">Siswa</div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-item">
-                    <div class="num" id="stat-total-jurnal">0</div>
-                    <div class="lbl">Total Jurnal</div>
-                </div>
-                <div class="stat-item">
-                    <div class="num" id="stat-jam-masuk">--:--</div>
-                    <div class="lbl">Jam Masuk</div>
-                </div>
-                <div class="stat-item">
-                    <div class="num" id="stat-jam-keluar">--:--</div>
-                    <div class="lbl">Jam Keluar</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- KELOMPOK ABSENSI HARI INI -->
-        <div class="absensi-section-title" id="title-absensi-section">
-            <span>Presensi Hari Ini</span>
-            <button class="btn-izin-link" onclick="toggleIzinModal(true)">+ Form Sakit / Izin / Alpha</button>
-        </div>
-        <div class="absensi-grid" id="area-absensi">
-            
-            <div class="absen-box">
-                <div>
-                    <div class="absen-box-header">
-                        <span class="absen-tag masuk">Absen Masuk</span>
-                        <span style="font-size: 1.2rem;">📍</span>
-                    </div>
-                    <div class="absen-title">Presensi Masuk</div>
-                    <div class="absen-time" id="time-absen-masuk">Belum Absen</div>
-                </div>
-                <button class="btn-absen-act masuk" id="btn-absen-masuk" onclick="doAbsen('Masuk')">
-                    Klik Absen Masuk
-                </button>
-            </div>
-
-            <div class="absen-box">
-                <div>
-                    <div class="absen-box-header">
-                        <span class="absen-tag keluar">Absen Keluar</span>
-                        <span style="font-size: 1.2rem;">🚪</span>
-                    </div>
-                    <div class="absen-title">Presensi Keluar</div>
-                    <div class="absen-time" id="time-absen-keluar">Belum Absen</div>
-                </div>
-                <button class="btn-absen-act keluar" id="btn-absen-keluar" onclick="doAbsen('Keluar')">
-                    Klik Absen Keluar
-                </button>
-            </div>
-
-        </div>
-
-        <div id="notice-viewer"></div>
-
-        <!-- TEAM CAROUSEL -->
-        <div class="section-header">
-            <span class="section-title">Pilih Anggota Tim</span>
-        </div>
-        <div class="team-carousel" id="team-list"></div>
-
-        <!-- NAVIGATION TAB -->
-        <div class="tab-nav">
-            <button class="tab-btn active" id="tab-btn-timeline" onclick="switchTab('timeline')">📖 Timeline Kegiatan</button>
-            <button class="tab-btn" id="tab-btn-absen" onclick="switchTab('absen')">📋 Rekap Absensi</button>
-        </div>
-
-        <!-- TAB 1: TIMELINE KEGIATAN -->
-        <div id="tab-timeline-container">
-            <div class="search-field">
-                <span style="color: var(--text-muted);">🔍</span>
-                <input type="text" id="search-input" placeholder="Cari kegiatan..." oninput="filterJurnal()">
-            </div>
-            <div class="feed-list" id="feed-container">
-                <div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data kegiatan...</div>
+    <!-- === KODE KARTU STATISTIK === -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(34, 197, 94, 0.15); border-radius: 12px; display: grid; place-items: center; color: #22c55e; font-size: 1.4rem;">✅</div>
+            <div>
+                <p style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin: 0;">Total Hadir</p>
+                <h3 id="stat-hadir" style="font-size: 1.5rem; color: #f8fafc; font-weight: 800; margin: 0;">0</h3>
             </div>
         </div>
-
-        <!-- TAB 2: TABEL REKAP ABSENSI -->
-        <div id="tab-absen-container" style="display: none;">
-            <div class="table-container">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Hari, Tanggal</th>
-                            <th>Masuk</th>
-                            <th>Keluar</th>
-                            <th>Status</th>
-                            <th>Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-absen-body">
-                        <tr><td colspan="6" style="text-align:center;">Memuat data absensi...</td></tr>
-                    </tbody>
-                </table>
+        <div style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(234, 179, 8, 0.15); border-radius: 12px; display: grid; place-items: center; color: #eab308; font-size: 1.4rem;">📩</div>
+            <div>
+                <p style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin: 0;">Izin / Sakit</p>
+                <h3 id="stat-izin" style="font-size: 1.5rem; color: #f8fafc; font-weight: 800; margin: 0;">0</h3>
             </div>
         </div>
+        <div style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; padding: 20px; border-radius: 16px; display: flex; align-items: center; gap: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(99, 102, 241, 0.15); border-radius: 12px; display: grid; place-items: center; color: #6366f1; font-size: 1.4rem;">📝</div>
+            <div>
+                <p style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin: 0;">Total Jurnal</p>
+                <h3 id="stat-jurnal" style="font-size: 1.5rem; color: #f8fafc; font-weight: 800; margin: 0;">0</h3>
+            </div>
+        </div>
+    </div>
+    <!-- === END KODE KARTU STATISTIK === -->
 
-    </main>
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="hero-top">
+            <div class="hero-title">
+                <span>Aktivitas Siswa</span>
+                <h2 id="hero-nama">-</h2>
+            </div>
+            <div class="badge-role" id="role-display">Siswa</div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="num" id="stat-total-jurnal">0</div>
+                <div class="lbl">Total Jurnal</div>
+            </div>
+            <div class="stat-item">
+                <div class="num" id="stat-jam-masuk">--:--</div>
+                <div class="lbl">Jam Masuk</div>
+            </div>
+            <div class="stat-item">
+                <div class="num" id="stat-jam-keluar">--:--</div>
+                <div class="lbl">Jam Keluar</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KELOMPOK ABSENSI HARI INI -->
+    <div class="absensi-section-title" id="title-absensi-section">
+        <span>Presensi Hari Ini</span>
+        <button class="btn-izin-link" onclick="toggleIzinModal(true)">+ Form Sakit / Izin / Alpha</button>
+    </div>
+    
+    <div class="absensi-grid" id="area-absensi">
+        <div class="absen-box">
+            <div>
+                <div class="absen-box-header">
+                    <span class="absen-tag masuk">Absen Masuk</span>
+                    <span style="font-size: 1.2rem;">📍</span>
+                </div>
+                <div class="absen-title">Presensi Masuk</div>
+                <div class="absen-time" id="time-absen-masuk">Belum Absen</div>
+            </div>
+            <button class="btn-absen-act masuk" id="btn-absen-masuk" onclick="doAbsen('Masuk')">
+                Klik Absen Masuk
+            </button>
+        </div>
+
+        <div class="absen-box">
+            <div>
+                <div class="absen-box-header">
+                    <span class="absen-tag keluar">Absen Keluar</span>
+                    <span style="font-size: 1.2rem;">🚪</span>
+                </div>
+                <div class="absen-title">Presensi Keluar</div>
+                <div class="absen-time" id="time-absen-keluar">Belum Absen</div>
+            </div>
+            <button class="btn-absen-act keluar" id="btn-absen-keluar" onclick="doAbsen('Keluar')">
+                Klik Absen Keluar
+            </button>
+        </div>
+    </div>
+
+    <div id="notice-viewer"></div>
+
+    <!-- TEAM CAROUSEL -->
+    <div class="section-header">
+        <span class="section-title">Pilih Anggota Tim</span>
+    </div>
+    <div class="team-carousel" id="team-list"></div>
+
+    <!-- NAVIGATION TAB -->
+    <div class="tab-nav">
+        <button class="tab-btn active" id="tab-btn-timeline" onclick="switchTab('timeline')">📖 Timeline Kegiatan</button>
+        <button class="tab-btn" id="tab-btn-absen" onclick="switchTab('absen')">📋 Rekap Absensi</button>
+    </div>
+
+    <!-- === KODE FILTER (DITARUH DI SINI SUPAYA RAPI DI ATAS TABEL/TIMELINE) === -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; margin-top: 16px;">
+        <select id="filter-nama" onchange="filterRiwayat()" style="display: none; background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; outline: none;">
+            <option value="SEMUA">-- Semua Anggota --</option>
+            <option value="Achmad Darell Yusuf">Achmad Darell Yusuf</option>
+            <option value="Ardan Fahriza">Ardan Fahriza</option>
+            <option value="Firmansyah">Firmansyah</option>
+            <option value="Muhammad Azzam Irransyah">Muhammad Azzam Irransyah</option>
+            <option value="Revan Aufa Hilal Kamil">Revan Aufa Hilal Kamil</option>
+        </select>
+
+        <input type="date" id="filter-tanggal" onchange="filterRiwayat()" style="background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; color: white; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; outline: none;">
+        
+        <button type="button" onclick="resetFilter()" style="background: rgba(255, 255, 255, 0.05); border: 1px solid #334155; color: #94a3b8; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">Reset Filter</button>
+    </div>
+    <!-- === END KODE FILTER === -->
+
+    <!-- TAB 1: TIMELINE KEGIATAN -->
+    <div id="tab-timeline-container">
+        <div class="search-field">
+            <span style="color: var(--text-muted);">🔍</span>
+            <input type="text" id="search-input" placeholder="Cari kegiatan..." oninput="filterJurnal()">
+        </div>
+        <div class="feed-list" id="feed-container">
+            <div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data kegiatan...</div>
+        </div>
+    </div>
+
+    <!-- TAB 2: TABEL REKAP ABSENSI -->
+    <div id="tab-absen-container" style="display: none;">
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Hari, Tanggal</th>
+                        <th>Masuk</th>
+                        <th>Keluar</th>
+                        <th>Status</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody id="table-absen-body">
+                    <tr><td colspan="6" style="text-align:center;">Memuat data absensi...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
 
     <!-- FAB JURNAL -->
     <button class="fab-trigger" id="fab-tambah" onclick="toggleSheet(true)">
@@ -453,6 +495,7 @@
 
     function renderTeamList() {
         const container = document.getElementById('team-list');
+        if (!container) return;
         container.innerHTML = '';
         let listAll = [...daftarAnggotaBawaan];
         if (userRole !== 'viewer' && !listAll.includes(userNama)) { listAll.push(userNama); }
@@ -469,7 +512,9 @@
 
     function pilihAnggota(nama) {
         namaAnggotaDilihat = nama;
-        document.getElementById('hero-nama').innerText = nama;
+        const heroNama = document.getElementById('hero-nama');
+        if (heroNama) heroNama.innerText = nama;
+        
         renderTeamList();
 
         const fabBtn = document.getElementById('fab-tambah');
@@ -478,20 +523,20 @@
         const noticeViewer = document.getElementById('notice-viewer');
 
         if (userRole === 'viewer') {
-            fabBtn.style.display = 'none';
-            absensiCard.style.display = 'none';
-            absensiTitle.style.display = 'none';
-            noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Pembimbing (Viewer)</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">👁️ <b>Mode Admin / Pembimbing (Viewer)</b>: Anda sedang memantau data <b>${nama}</b>.</div>`;
         } else if (namaAnggotaDilihat === userNama) {
-            fabBtn.style.display = 'flex';
-            absensiCard.style.display = 'grid';
-            absensiTitle.style.display = 'flex';
-            noticeViewer.innerHTML = '';
+            if (fabBtn) fabBtn.style.display = 'flex';
+            if (absensiCard) absensiCard.style.display = 'grid';
+            if (absensiTitle) absensiTitle.style.display = 'flex';
+            if (noticeViewer) noticeViewer.innerHTML = '';
         } else {
-            fabBtn.style.display = 'none';
-            absensiCard.style.display = 'none';
-            absensiTitle.style.display = 'none';
-            noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
+            if (fabBtn) fabBtn.style.display = 'none';
+            if (absensiCard) absensiCard.style.display = 'none';
+            if (absensiTitle) absensiTitle.style.display = 'none';
+            if (noticeViewer) noticeViewer.innerHTML = `<div class="notice-box">🔒 Anda sedang melihat data <b>${nama}</b>. Anda tidak dapat mengisi data milik orang lain.</div>`;
         }
 
         muatDataJurnal();
@@ -513,7 +558,7 @@
 
     async function muatDataJurnal() {
         const feed = document.getElementById('feed-container');
-        feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data...</div>';
+        if (feed) feed.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">Memuat data...</div>';
 
         try {
             const response = await fetch(`${API_URL}?nama=${encodeURIComponent(namaAnggotaDilihat)}`);
@@ -526,19 +571,24 @@
             // Urutkan terbaru
             listKegiatan.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-            document.getElementById('stat-total-jurnal').innerText = listKegiatan.length;
+            const statJurnalElem = document.getElementById('stat-total-jurnal');
+            if (statJurnalElem) statJurnalElem.innerText = listKegiatan.length;
             
             renderTimeline(listKegiatan);
             renderTabelAbsensi(listAbsensi);
             muatStatusAbsensi();
+            
+            // AUTOMATIS HITUNG STATISTIK BARU
+            kalkulasiStatistik();
         } catch (error) {
             console.error(error);
-            feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
+            if (feed) feed.innerHTML = '<div style="text-align:center; color:red; padding: 20px;">Gagal mengambil data dari server.</div>';
         }
     }
 
     function renderTimeline(data) {
         const feed = document.getElementById('feed-container');
+        if (!feed) return;
         feed.innerHTML = '';
 
         if (!data || data.length === 0) {
@@ -567,9 +617,9 @@
         });
     }
 
-    // TERAMBIL & DISUSUN SECARA DETAIL DI REKAP ABSENSI (SAKIT/IZIN/ALPHA)
     function renderTabelAbsensi(dataAbsen) {
         const tbody = document.getElementById('table-absen-body');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!dataAbsen || dataAbsen.length === 0) {
@@ -591,7 +641,6 @@
             } else if (item.judul.includes("KELUAR")) {
                 grouped[tglKey].keluar = timeStr + ' WIB';
             } else if (item.judul.includes("SAKIT") || item.judul.includes("IZIN") || item.judul.includes("ALPHA")) {
-                // Ekstrak status (Sakit / Izin / Alpha)
                 const parts = item.judul.split(":");
                 const st = parts[1] ? parts[1].trim() : "Sakit";
                 
@@ -685,6 +734,8 @@
         const timeKeluar = document.getElementById('time-absen-keluar');
         const statKeluar = document.getElementById('stat-jam-keluar');
 
+        if (!btnMasuk || !btnKeluar) return;
+
         if (absenKhususToday) {
             const statusStr = absenKhususToday.judul.replace("ABSENSI: ", "");
             timeMasuk.innerText = statusStr;
@@ -729,91 +780,160 @@
     }
 
     // SUBMIT JURNAL
-    document.getElementById('form-jurnal').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-simpan');
-        btn.innerText = "Menyimpan...";
-        btn.disabled = true;
+    const formJurnal = document.getElementById('form-jurnal');
+    if (formJurnal) {
+        formJurnal.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
 
-        const payload = {
-            tanggal: document.getElementById('tanggal').value,
-            judul: document.getElementById('judul').value,
-            kegiatan: document.getElementById('kegiatan').value,
-            keterangan: document.getElementById('keterangan').value,
-            nama: userNama
-        };
+            const payload = {
+                tanggal: document.getElementById('tanggal').value,
+                judul: document.getElementById('judul').value,
+                kegiatan: document.getElementById('kegiatan').value,
+                keterangan: document.getElementById('keterangan').value,
+                nama: userNama
+            };
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (response.ok) {
-                alert('Jurnal berhasil ditambahkan!');
-                document.getElementById('judul').value = '';
-                document.getElementById('kegiatan').value = '';
-                document.getElementById('keterangan').value = '';
-                toggleSheet(false);
-                muatDataJurnal();
-            } else {
-                alert('Gagal menyimpan jurnal.');
+                if (response.ok) {
+                    alert('Jurnal berhasil ditambahkan!');
+                    document.getElementById('judul').value = '';
+                    document.getElementById('kegiatan').value = '';
+                    document.getElementById('keterangan').value = '';
+                    toggleSheet(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan jurnal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan ke Timeline";
+                btn.disabled = false;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.innerText = "Simpan ke Timeline";
-            btn.disabled = false;
-        }
-    });
+        });
+    }
 
-    // SUBMIT FORM SAKIT / IZIN / ALPHA -> LANGSUNG MASUK REKAP ABSENSI
-    document.getElementById('form-izin').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btn-simpan-izin');
-        btn.innerText = "Menyimpan...";
-        btn.disabled = true;
+    // SUBMIT FORM SAKIT / IZIN / ALPHA
+    const formIzin = document.getElementById('form-izin');
+    if (formIzin) {
+        formIzin.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-simpan-izin');
+            btn.innerText = "Menyimpan...";
+            btn.disabled = true;
 
-        const status = document.getElementById('izin-status').value;
-        const alasan = document.getElementById('izin-alasan').value;
-        const now = new Date();
+            const status = document.getElementById('izin-status').value;
+            const alasan = document.getElementById('izin-alasan').value;
+            const now = new Date();
 
-        const payload = {
-            tanggal: now.toISOString(),
-            judul: `ABSENSI: ${status.toUpperCase()}`,
-            kegiatan: `Pengajuan Status ${status}`,
-            keterangan: alasan,
-            nama: userNama
-        };
+            const payload = {
+                tanggal: now.toISOString(),
+                judul: `ABSENSI: ${status.toUpperCase()}`,
+                kegiatan: `Pengajuan Status ${status}`,
+                keterangan: alasan,
+                nama: userNama
+            };
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (response.ok) {
-                alert(`Pengajuan ${status} berhasil dikirim dan dicatat di Rekap Absensi!`);
-                document.getElementById('izin-alasan').value = '';
-                toggleIzinModal(false);
-                muatDataJurnal();
-            } else {
-                alert('Gagal menyimpan pengajuan.');
+                if (response.ok) {
+                    alert(`Pengajuan ${status} berhasil dikirim dan dicatat di Rekap Absensi!`);
+                    document.getElementById('izin-alasan').value = '';
+                    toggleIzinModal(false);
+                    muatDataJurnal();
+                } else {
+                    alert('Gagal menyimpan pengajuan.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.innerText = "Simpan Ke Rekap Absen";
+                btn.disabled = false;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.innerText = "Simpan Ke Rekap Absen";
-            btn.disabled = false;
-        }
-    });
+        });
+    }
 
+    // === LOGIKA FITUR BARU: STATISTIK & FILTER TANGGAL ===
+
+    function kalkulasiStatistik(dataKustom) {
+        const dataHadir = dataKustom || listAbsensi;
+        const dataJurnal = dataKustom || listKegiatan;
+
+        // Hitung total hari yang masuk
+        const totalHadir = dataHadir.filter(d => d.judul && d.judul.includes('MASUK')).length;
+        // Hitung izin/sakit
+        const totalIzin = dataHadir.filter(d => d.judul && (d.judul.includes('IZIN') || d.judul.includes('SAKIT'))).length;
+        // Hitung total jurnal kegiatan
+        const totalJurnal = dataJurnal.length;
+
+        if (document.getElementById('stat-hadir')) document.getElementById('stat-hadir').innerText = totalHadir;
+        if (document.getElementById('stat-izin')) document.getElementById('stat-izin').innerText = totalIzin;
+        if (document.getElementById('stat-jurnal')) document.getElementById('stat-jurnal').innerText = totalJurnal;
+    }
+
+    function filterRiwayat() {
+        const filterNama = document.getElementById('filter-nama') ? document.getElementById('filter-nama').value : 'SEMUA';
+        const filterTanggal = document.getElementById('filter-tanggal') ? document.getElementById('filter-tanggal').value : '';
+
+        // Jika filter nama diubah oleh admin viewer
+        if (filterNama !== 'SEMUA' && filterNama !== namaAnggotaDilihat) {
+            pilihAnggota(filterNama);
+            return;
+        }
+
+        let hasilKegiatan = listKegiatan;
+        let hasilAbsensi = listAbsensi;
+
+        if (filterTanggal) {
+            hasilKegiatan = hasilKegiatan.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+            hasilAbsensi = hasilAbsensi.filter(d => {
+                const tgl = d.tanggal ? d.tanggal.slice(0, 10) : '';
+                return tgl === filterTanggal;
+            });
+        }
+
+        renderTimeline(hasilKegiatan);
+        renderTabelAbsensi(hasilAbsensi);
+        kalkulasiStatistik(hasilAbsensi);
+    }
+
+    function resetFilter() {
+        if (document.getElementById('filter-nama')) document.getElementById('filter-nama').value = 'SEMUA';
+        if (document.getElementById('filter-tanggal')) document.getElementById('filter-tanggal').value = '';
+        renderTimeline(listKegiatan);
+        renderTabelAbsensi(listAbsensi);
+        kalkulasiStatistik();
+    }
+
+    // Inisialisasi awal
     renderTeamList();
     pilihAnggota(namaAnggotaDilihat);
+
+    // Cek Role Admin saat halaman dimuat
+    document.addEventListener("DOMContentLoaded", function() {
+        if (userRole === 'viewer' && document.getElementById('filter-nama')) {
+            document.getElementById('filter-nama').style.display = 'block';
+        }
+    });
 </script>
 
 </body>
