@@ -19,7 +19,7 @@
             flex-direction: column;
         }
         .sidebar h2 { margin-bottom: 5px; font-size: 1.2rem; }
-        .sidebar .user-info { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+        .sidebar .user-info { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; word-break: break-all; }
         .sidebar button {
             display: block;
             width: 100%;
@@ -153,14 +153,14 @@
     }
     document.getElementById('user-display').innerText = userEmail;
 
-    // 2. Pemetaan Email ke Kode Anggota
-    // SESUAIKAN EMAIL DENGAN NAMA ANGGOTA DIBAWAH INI:
+    // 2. Pemetaan Email ke Kode Anggota (JIKA MENGGUNAKAN DAFTAR ANGGOTA TETAP)
+    // Silahkan isi email akun asli masing-masing temanmu di sini:
     const akunAnggota = {
-        'darell@gmail.com': 'A',
-        'ardan@gmail.com': 'B',
-        'firmansyah@gmail.com': 'C',
-        'azzam@gmail.com': 'D',
-        'revan@gmail.com': 'E'
+        'user1@gmail.com': 'A', 
+        'user2@gmail.com': 'B', 
+        'user3@gmail.com': 'C', 
+        'user4@gmail.com': 'D', 
+        'user5@gmail.com': 'E'  
     };
 
     const namaLengkap = {
@@ -171,9 +171,9 @@
         'E': 'Revan Aufa Hilal Kamil'
     };
 
-    // Tentukan kode anggota dari email login
-    const kodeAnggotaSaya = akunAnggota[userEmail.toLowerCase()] || 'A';
-    let kodeAnggotaDilihat = kodeAnggotaSaya; // Default buka halaman sendiri
+    // Jika email terdaftar di 'akunAnggota', gunakan kodenya. Jika tidak, gunakan email langsung.
+    const kodeAnggotaSaya = akunAnggota[userEmail.toLowerCase()] || userEmail.toLowerCase();
+    let kodeAnggotaDilihat = kodeAnggotaSaya;
 
     const API_URL = "https://jurnal-backend-ocf6-nine.vercel.app/api/jurnal";
 
@@ -186,12 +186,14 @@
     function pilihAnggota(kode) {
         kodeAnggotaDilihat = kode;
 
-        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaLengkap[kode];
+        const namaTampil = namaLengkap[kode] || kode;
+        document.getElementById('judul-anggota').innerText = "Kegiatan : " + namaTampil;
 
         document.querySelectorAll('.sidebar button:not(.btn-logout)').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${kode}`).classList.add('active');
+        const btnAktif = document.getElementById(`btn-${kode}`);
+        if(btnAktif) btnAktif.classList.add('active');
 
-        // Atur Form: Jika sedang melihat akun orang lain, sembunyikan form input
+        // Atur Form: Hanya muncul jika membuka tab miliknya sendiri
         const areaForm = document.getElementById('area-form');
         if (kodeAnggotaDilihat === kodeAnggotaSaya) {
             areaForm.innerHTML = `
@@ -207,7 +209,7 @@
         } else {
             areaForm.innerHTML = `
                 <div class="notice-box">
-                    🔒 Anda hanya bisa melihat data milik <b>${namaLengkap[kode]}</b>. Anda tidak dapat menambah/mengedit jurnal orang lain.
+                    🔒 Anda sedang melihat jurnal <b>${namaTampil}</b>. Anda tidak dapat menambah data ke akun ini.
                 </div>
             `;
         }
@@ -221,7 +223,7 @@
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>';
 
         try {
-            const response = await fetch(`${API_URL}?nama=${kodeAnggotaDilihat}`);
+            const response = await fetch(`${API_URL}?nama=${encodeURIComponent(kodeAnggotaDilihat)}`);
             const data = await response.json();
 
             tbody.innerHTML = '';
@@ -265,7 +267,7 @@
                 judul: document.getElementById('judul').value,
                 kegiatan: document.getElementById('kegiatan').value,
                 keterangan: document.getElementById('keterangan').value,
-                nama: kodeAnggotaSaya // Mengikat pengiriman data ke kode akun sendiri
+                nama: kodeAnggotaSaya // Data akan terikat langsung ke kode/email user yang sedang login
             };
 
             try {
@@ -295,7 +297,7 @@
         });
     }
 
-    // Inisialisasi awal
+    // Jalankan awal
     pilihAnggota(kodeAnggotaSaya);
 </script>
 
