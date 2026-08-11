@@ -17,7 +17,7 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; }
         
         button.submit-btn { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
         button.submit-btn:hover { background: #1d4ed8; }
@@ -53,8 +53,15 @@
     <!-- FORM REGISTER -->
     <form id="form-register" style="display: none;">
         <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" id="reg-nama" placeholder="Contoh: Achmad Darell Yusuf" required>
+            <label>Pilih Nama Anggota</label>
+            <select id="reg-nama" required>
+                <option value="" disabled selected>-- Pilih Nama Anda --</option>
+                <option value="Achmad Darell Yusuf">Achmad Darell Yusuf</option>
+                <option value="Ardan Fahriza">Ardan Fahriza</option>
+                <option value="Firmansyah">Firmansyah</option>
+                <option value="Muhammad Azzam Irransyah">Muhammad Azzam Irransyah</option>
+                <option value="Revan Aufa Hilal Kamil">Revan Aufa Hilal Kamil</option>
+            </select>
         </div>
         <div class="form-group">
             <label>Email</label>
@@ -64,7 +71,7 @@
             <label>Password</label>
             <input type="password" id="reg-password" placeholder="Minimal 6 karakter" required minlength="6">
         </div>
-        <button type="submit" class="submit-btn">Buat Akun</button>
+        <button type="submit" id="btn-reg-submit" class="submit-btn">Buat Akun</button>
     </form>
 
     <div id="msg-box" class="msg"></div>
@@ -72,7 +79,7 @@
 
 <script>
     const SUPABASE_URL = "https://rkarsceacmamrzwryczj.supabase.co";
-    // ISI DENGAN PUBLISHABLE KEY SUPABASE KAMU:
+    // ISI DENGAN PUBLISHABLE / ANON KEY SUPABASE KAMU:
     const SUPABASE_ANON_KEY = "sb_publishable_vd9qmhC_6UNRPjeuTkE9Jg_UlYmLiPv"; 
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -113,7 +120,6 @@
         if (error) {
             showMsg("Login gagal: " + error.message, "error");
         } else {
-            // Simpan Email dan Nama User ke LocalStorage
             const userNama = data.user.user_metadata?.full_name || email.split('@')[0];
             localStorage.setItem('user_email', data.user.email);
             localStorage.setItem('user_nama', userNama);
@@ -121,27 +127,63 @@
         }
     });
 
-    // PROCESS REGISTER
+    // PROCESS REGISTER DENGEN CEK NAMA GANDA
     document.getElementById('form-register').addEventListener('submit', async function(e) {
         e.preventDefault();
-        showMsg("Membuat akun...", "success");
-
+        
         const nama = document.getElementById('reg-nama').value;
         const email = document.getElementById('reg-email').value;
         const password = document.getElementById('reg-password').value;
+        const btnReg = document.getElementById('btn-reg-submit');
 
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: { full_name: nama } // Menyimpan Nama Lengkap ke Profil Supabase
+        showMsg("Memeriksa ketersediaan nama...", "success");
+        btnReg.disabled = true;
+
+        try {
+            // 1. Cek dulu ke tabel profiles apakah nama sudah pernah didaftarkan
+            const { data: existingUser, error: checkError } = await supabaseClient
+                .from('profiles')
+                .select('full_name')
+                .eq('full_name', nama)
+                .maybeSingle();
+
+            if (existingUser) {
+                showMsg(`⚠️ Nama "${nama}" sudah terdaftar dengan akun lain! 1 Anggota hanya boleh punya 1 akun.`, "error");
+                btnReg.disabled = false;
+                return;
             }
-        });
 
-        if (error) {
-            showMsg("Gagal daftar: " + error.message, "error");
-        } else {
+            // 2. Jika nama belum ada, lakukan pendaftaran di Auth Supabase
+            showMsg("Proses membuat akun...", "success");
+            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { full_name: nama }
+                }
+            });
+
+            if (authError) {
+                showMsg("Gagal daftar: " + authError.message, "error");
+                btnReg.disabled = false;
+                return;
+            }
+
+            // 3. Simpan nama ke tabel profiles agar terkunci dan tidak bisa dipakai orang lain
+            if (authData.user) {
+                await supabaseClient.from('profiles').insert([
+                    { id: authData.user.id, full_name: nama }
+                ]);
+            }
+
             showMsg("Akun berhasil dibuat! Silakan klik tab Login untuk masuk.", "success");
+            document.getElementById('form-register').reset();
+
+        } catch (err) {
+            console.error(err);
+            showMsg("Terjadi kesalahan sistem.", "error");
+        } finally {
+            btnReg.disabled = false;
         }
     });
 
